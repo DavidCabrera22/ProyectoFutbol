@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "gIEOZz8/3bdyDzc1CnugHT3aDhRqabDTYKYI/MbaXo0=",
+  "Source": "TopFutbolAPI",
+  "BasePath": "_content/TopFutbolAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
