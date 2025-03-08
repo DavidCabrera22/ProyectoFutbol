@@ -170,3 +170,4 @@ C:\Users\W11\HOLA\TopFutbolApi\obj\Debug\net8.0\refint\TopFutbolAPI.dll
 C:\Users\W11\HOLA\TopFutbolApi\obj\Debug\net8.0\TopFutbolAPI.pdb
 C:\Users\W11\HOLA\TopFutbolApi\obj\Debug\net8.0\TopFutbolAPI.genruntimeconfig.cache
 C:\Users\W11\HOLA\TopFutbolApi\obj\Debug\net8.0\ref\TopFutbolAPI.dll
+C:\Users\W11\HOLA\TopFutbolApi\obj\Debug\net8.0\TopFutbolAPI.sourcelink.json

@@ -23,6 +23,7 @@ namespace TopFutbolAPI.Controllers
             return await _context.Formadores
                 .Select(f => new FormadorDTO
                 {
+                    IdFormador = f.IdFormador,
                     Nombre = f.Nombre,
                     Telefono = f.Telefono
                 })
@@ -33,9 +34,10 @@ namespace TopFutbolAPI.Controllers
         public async Task<ActionResult<IEnumerable<FormadorDTO>>> SearchFormadores([FromQuery] string query)
         {
             return await _context.Formadores
-                .Where(f => f.Nombre.Contains(query) || f.Telefono.Contains(query))
+                .Where(f => f.Nombre.Contains(query))
                 .Select(f => new FormadorDTO
                 {
+                    IdFormador = f.IdFormador,
                     Nombre = f.Nombre,
                     Telefono = f.Telefono
                 })
@@ -49,6 +51,7 @@ namespace TopFutbolAPI.Controllers
                 .Where(f => f.IdFormador == id)
                 .Select(f => new FormadorDTO
                 {
+                    IdFormador = f.IdFormador,
                     Nombre = f.Nombre,
                     Telefono = f.Telefono
                 })
@@ -76,6 +79,7 @@ namespace TopFutbolAPI.Controllers
 
             return new FormadorDTO
             {
+                IdFormador = formador.IdFormador,
                 Nombre = formador.Nombre,
                 Telefono = formador.Telefono
             };
@@ -98,6 +102,7 @@ namespace TopFutbolAPI.Controllers
                 await _context.SaveChangesAsync();
                 return new FormadorDTO
                 {
+                    IdFormador = formador.IdFormador,
                     Nombre = formador.Nombre,
                     Telefono = formador.Telefono
                 };
