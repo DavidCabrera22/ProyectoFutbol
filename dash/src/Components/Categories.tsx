@@ -1,27 +1,158 @@
-import { FC } from 'react';
+import { FC, useState, useEffect } from 'react';
+import axios from 'axios';
+import { Button, Modal, Form } from 'react-bootstrap';
 
 interface Category {
   idCategoria: number;
-  nombreCategoria: string;
+  nombre: string;
 }
 
 const Categories: FC = () => {
-  const categories: Category[] = [
-    {
-      idCategoria: 1,
-      nombreCategoria: "juvenil"
-    },
-    {
-      idCategoria: 2,
-      nombreCategoria: "Pony"
+  // Estados para manejar los datos y la UI
+  const [categorias, setCategorias] = useState<Category[]>([]);
+  const [categoriasFiltradas, setCategoriasFiltradas] = useState<Category[]>([]);
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  const [ordenamiento, setOrdenamiento] = useState('reciente');
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [categoriaEditar, setCategoriaEditar] = useState<Category | null>(null);
+  const [esNuevaCategoria, setEsNuevaCategoria] = useState(false);
+
+  // Efecto para cargar las categorías al montar el componente
+  useEffect(() => {
+    obtenerCategorias();
+  }, []);
+
+  // Función para obtener las categorías desde la API
+  const obtenerCategorias = async () => {
+    try {
+      const response = await axios.get('http://localhost:5180/api/Categorias');
+      setCategorias(response.data);
+      setCategoriasFiltradas(response.data);
+    } catch (error) {
+      console.error('Error al obtener categorías:', error);
     }
-  ];
+  };
+
+  // Función para manejar la búsqueda de categorías
+  const manejarBusqueda = (evento: React.ChangeEvent<HTMLInputElement>) => {
+    const termino = evento.target.value;
+    setTerminoBusqueda(termino);
+    
+    if (termino.trim() === '') {
+      setCategoriasFiltradas(categorias);
+    } else {
+      const filtradas = categorias.filter(categoria => 
+        categoria.nombre.toLowerCase().includes(termino.toLowerCase())
+      );
+      setCategoriasFiltradas(filtradas);
+    }
+  };
+
+  // Función para manejar el ordenamiento de categorías
+  const manejarOrdenamiento = (evento: React.ChangeEvent<HTMLSelectElement>) => {
+    const valor = evento.target.value;
+    setOrdenamiento(valor);
+    const categoriasOrdenadas = [...categoriasFiltradas];
+    
+    switch (valor) {
+      case 'a-z':
+        categoriasOrdenadas.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        break;
+      case 'z-a':
+        categoriasOrdenadas.sort((a, b) => b.nombre.localeCompare(a.nombre));
+        break;
+      case 'reciente':
+        categoriasOrdenadas.sort((a, b) => b.idCategoria - a.idCategoria);
+        break;
+      case 'antiguo':
+        categoriasOrdenadas.sort((a, b) => a.idCategoria - b.idCategoria);
+        break;
+    }
+    
+    setCategoriasFiltradas(categoriasOrdenadas);
+  };
+
+  // Función para iniciar la creación de una nueva categoría
+  const nuevaCategoria = () => {
+    setEsNuevaCategoria(true);
+    setCategoriaEditar({
+      idCategoria: 0,
+      nombre: ''
+    });
+    setMostrarModal(true);
+  };
+
+  // Función para iniciar la edición de una categoría existente
+  const editarCategoria = (id: number) => {
+    const categoria = categorias.find(c => c.idCategoria === id);
+    if (categoria) {
+      setEsNuevaCategoria(false);
+      setCategoriaEditar({ ...categoria });
+      setMostrarModal(true);
+    }
+  };
+
+  // Función para eliminar una categoría
+  const eliminarCategoria = async (id: number) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+      try {
+        await axios.delete(`http://localhost:5180/api/Categorias/${id}`);
+        obtenerCategorias();
+      } catch (error) {
+        console.error('Error al eliminar categoría:', error);
+      }
+    }
+  };
+
+  // Función para actualizar un campo de la categoría en edición
+  const actualizarCampo = (campo: keyof Category, valor: string) => {
+    if (categoriaEditar) {
+      setCategoriaEditar({
+        ...categoriaEditar,
+        [campo]: valor
+      });
+    }
+  };
+
+  // Función para guardar los cambios (crear o actualizar categoría)
+  const guardarCambios = async () => {
+    if (!categoriaEditar) return;
+
+    try {
+      if (esNuevaCategoria) {
+        await axios.post('http://localhost:5180/api/Categorias', categoriaEditar);
+        alert('Categoría creada con éxito');
+      } else {
+        await axios.put(`http://localhost:5180/api/Categorias/${categoriaEditar.idCategoria}`, categoriaEditar);
+        alert('Categoría actualizada con éxito');
+      }
+      
+      setMostrarModal(false);
+      obtenerCategorias();
+    } catch (error) {
+      console.error('Error al guardar categoría:', error);
+      alert('Error al guardar la categoría');
+    }
+  };
 
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1>Hola Jorge 👋</h1>
-        <input type="search" className="form-control" placeholder="Buscar" style={{width: '200px'}} />
+        <div className="d-flex gap-3">
+          <Button variant="success" onClick={nuevaCategoria}>
+            <i className="bi bi-plus-circle me-2"></i>
+            Agregar Categoría
+          </Button>
+          <input 
+            type="search" 
+            className="form-control" 
+            placeholder="Buscar categoría..." 
+            style={{width: '200px'}} 
+            value={terminoBusqueda}
+            onChange={manejarBusqueda}
+          />
+        </div>
       </div>
 
       <div className="card mb-4">
@@ -32,7 +163,7 @@ const Categories: FC = () => {
             </div>
             <div>
               <small className="text-muted">Total de Categorías</small>
-              <h2 className="mb-0">5,423</h2>
+              <h2 className="mb-0">{categorias.length}</h2>
             </div>
           </div>
         </div>
@@ -40,17 +171,27 @@ const Categories: FC = () => {
 
       <div className="mb-4">
         <h2>Todos las Categorías</h2>
-        <p className="text-success mb-4">Categorías activos</p>
+        <p className="text-success mb-4">Categorías activas</p>
         
         <div className="d-flex justify-content-between mb-3">
           <input 
             type="search" 
             className="form-control" 
-            placeholder="Buscar" 
-            style={{width: '200px'}} 
+            placeholder="Buscar por nombre..." 
+            style={{width: '300px'}} 
+            value={terminoBusqueda}
+            onChange={manejarBusqueda}
           />
-          <select className="form-select" style={{width: '200px'}}>
-            <option>Reciente</option>
+          <select 
+            className="form-select" 
+            style={{width: '200px'}}
+            value={ordenamiento}
+            onChange={manejarOrdenamiento}
+          >
+            <option value="reciente">Más reciente</option>
+            <option value="antiguo">Más antiguo</option>
+            <option value="a-z">A-Z</option>
+            <option value="z-a">Z-A</option>
           </select>
         </div>
 
@@ -60,13 +201,32 @@ const Categories: FC = () => {
               <tr>
                 <th>ID Categoría</th>
                 <th>Nombre de la categoría</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map((category) => (
-                <tr key={category.idCategoria}>
-                  <td>{category.idCategoria}</td>
-                  <td>{category.nombreCategoria}</td>
+              {categoriasFiltradas.map((categoria) => (
+                <tr key={categoria.idCategoria}>
+                  <td>{categoria.idCategoria}</td>
+                  <td>{categoria.nombre}</td>
+                  <td>
+                    <div className="btn-group">
+                      <button 
+                        className="btn btn-sm btn-outline-primary me-1"
+                        onClick={() => editarCategoria(categoria.idCategoria)}
+                        title="Editar"
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      <button 
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => eliminarCategoria(categoria.idCategoria)}
+                        title="Eliminar"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -93,6 +253,37 @@ const Categories: FC = () => {
           </ul>
         </nav>
       </div>
+
+      {/* Modal de edición/creación */}
+      <Modal show={mostrarModal} onHide={() => setMostrarModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {esNuevaCategoria ? 'Agregar Categoría' : 'Editar Categoría'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {categoriaEditar && (
+            <Form>
+              <Form.Group className="mb-3">
+                <Form.Label>Nombre de la categoría</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={categoriaEditar.nombre}
+                  onChange={(e) => actualizarCampo('nombre', e.target.value)}
+                />
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setMostrarModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={guardarCambios}>
+            {esNuevaCategoria ? 'Crear Categoría' : 'Guardar Cambios'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

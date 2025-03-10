@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\W11\\HOLA\\TopFutbolApi\\TopFutbolAPI.csproj": {}
+    "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\TopFutbolAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\W11\\HOLA\\TopFutbolApi\\TopFutbolAPI.csproj": {
+    "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\TopFutbolAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\W11\\HOLA\\TopFutbolApi\\TopFutbolAPI.csproj",
+        "projectUniqueName": "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\TopFutbolAPI.csproj",
         "projectName": "TopFutbolAPI",
-        "projectPath": "C:\\Users\\W11\\HOLA\\TopFutbolApi\\TopFutbolAPI.csproj",
+        "projectPath": "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\TopFutbolAPI.csproj",
         "packagesPath": "C:\\Users\\W11\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\W11\\HOLA\\TopFutbolApi\\obj\\",
+        "outputPath": "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

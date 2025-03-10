@@ -23,6 +23,7 @@ namespace TopFutbolAPI.Controllers
             return await _context.Categorias
                 .Select(c => new CategoriaDTO
                 {
+                    IdCategoria = c.IdCategoria,
                     Nombre = c.Nombre
                 })
                 .ToListAsync();
@@ -35,6 +36,7 @@ namespace TopFutbolAPI.Controllers
                 .Where(c => c.Nombre.Contains(query))
                 .Select(c => new CategoriaDTO
                 {
+                    IdCategoria = c.IdCategoria,
                     Nombre = c.Nombre
                 })
                 .ToListAsync();
@@ -47,6 +49,7 @@ namespace TopFutbolAPI.Controllers
                 .Where(c => c.IdCategoria == id)
                 .Select(c => new CategoriaDTO
                 {
+                    IdCategoria = c.IdCategoria,
                     Nombre = c.Nombre
                 })
                 .FirstOrDefaultAsync();
@@ -72,6 +75,7 @@ namespace TopFutbolAPI.Controllers
 
             return new CategoriaDTO
             {
+                IdCategoria = categoria.IdCategoria,
                 Nombre = categoria.Nombre
             };
         }
@@ -92,6 +96,7 @@ namespace TopFutbolAPI.Controllers
                 await _context.SaveChangesAsync();
                 return new CategoriaDTO
                 {
+                    IdCategoria = categoria.IdCategoria,
                     Nombre = categoria.Nombre
                 };
             }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ylB4zY+HkZM=",
+  "dgSpecHash": "SpaC15uYBY8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\W11\\HOLA\\TopFutbolApi\\TopFutbolAPI.csproj",
+  "projectFilePath": "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\TopFutbolAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\W11\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\W11\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
