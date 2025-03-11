@@ -9,10 +9,10 @@ namespace TopFutbolAPI.Models
     {
         Alumnos = new List<Alumno>();
     }
-        [Key]
+       [Key]
         public int IdSede { get; set; }
-        public string Ciudad { get; set; }
-        public string NombreSede { get; set; }
+        public string Ciudad { get; set; } = string.Empty;
+        public string NombreSede { get; set; } = string.Empty;
         public virtual ICollection<Alumno> Alumnos { get; set; }
     }
 }

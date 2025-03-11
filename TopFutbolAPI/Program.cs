@@ -23,6 +23,28 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Inicializar la base de datos con datos de prueba
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        
+        // Asegurarse de que la base de datos se crea desde cero
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+        
+        // Inicializar con datos de prueba
+        DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al inicializar la base de datos.");
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

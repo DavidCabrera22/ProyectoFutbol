@@ -62,7 +62,7 @@ namespace TopFutbolAPI.Migrations
 
                     b.HasIndex("IdSede");
 
-                    b.ToTable("Alumnos");
+                    b.ToTable("Alumnos", (string)null);
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.Categoria", b =>
@@ -79,7 +79,7 @@ namespace TopFutbolAPI.Migrations
 
                     b.HasKey("IdCategoria");
 
-                    b.ToTable("Categorias");
+                    b.ToTable("Categorias", (string)null);
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.Formador", b =>
@@ -100,7 +100,7 @@ namespace TopFutbolAPI.Migrations
 
                     b.HasKey("IdFormador");
 
-                    b.ToTable("Formadores");
+                    b.ToTable("Formadores", (string)null);
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.Sede", b =>
@@ -121,7 +121,7 @@ namespace TopFutbolAPI.Migrations
 
                     b.HasKey("IdSede");
 
-                    b.ToTable("Sedes");
+                    b.ToTable("Sedes", (string)null);
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.Alumno", b =>

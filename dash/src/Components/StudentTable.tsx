@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 interface Estudiante {
-  id: number;
+  id: string;
   nombre: string;
   apellido: string;
   telefono: string;
@@ -77,7 +77,8 @@ const StudentTable: FC = () => {
     const filtrados = estudiantes.filter(estudiante => 
       estudiante.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
       estudiante.apellido.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
-      estudiante.email.toLowerCase().includes(terminoBusqueda.toLowerCase())
+      estudiante.email.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+      estudiante.id.toLowerCase().includes(terminoBusqueda.toLowerCase())
     );
     setEstudiantesFiltrados(filtrados);
   }, [terminoBusqueda, estudiantes]);
@@ -85,19 +86,22 @@ const StudentTable: FC = () => {
   const obtenerEstudiantes = async () => {
     try {
       const respuesta = await axios.get('http://localhost:5180/api/Alumnos');
+      console.log('Datos de alumnos recibidos:', respuesta.data);
       setEstudiantes(respuesta.data);
       setEstudiantesFiltrados(respuesta.data);
       setTotalEstudiantes(respuesta.data.length);
     } catch (error) {
       console.error('Error al obtener estudiantes:', error);
+      alert('Error al cargar los estudiantes. Por favor, intenta de nuevo.');
     }
   };
+  
 
   const manejarBusqueda = (evento: React.ChangeEvent<HTMLInputElement>) => {
     setTerminoBusqueda(evento.target.value);
   };
 
-  const editarEstudiante = async (id: number) => {
+  const editarEstudiante = async (id: string) => {
     try {
       const respuesta = await axios.get(`http://localhost:5180/api/Alumnos/${id}`);
       setEstudianteEditar(respuesta.data);
@@ -110,16 +114,16 @@ const StudentTable: FC = () => {
 
   const nuevoEstudiante = () => {
     setEstudianteEditar({
-      id: 0,
+      id: '',  // Cambiado a string vacío
       nombre: '',
       apellido: '',
       telefono: '',
       email: '',
-      idSede: 0,      // Cambiado de '' a 0
+      idSede: 0,
       nombreSede: '',
-      idFormador: 0,   // Cambiado de '' a 0
+      idFormador: 0,
       nombreFormador: '',
-      idCategoria: 0,  // Cambiado de '' a 0
+      idCategoria: 0,
       nombreCategoria: ''
     });
     setEsNuevoEstudiante(true);
@@ -127,11 +131,22 @@ const StudentTable: FC = () => {
   };
   
   
+  
   const guardarCambios = async () => {
     if (!estudianteEditar) return;
     
     try {
       // Validaciones
+      if (!estudianteEditar.nombre.trim()) {
+        alert('Por favor ingrese un nombre');
+        return;
+      }
+      
+      if (!estudianteEditar.apellido.trim()) {
+        alert('Por favor ingrese un apellido');
+        return;
+      }
+      
       if (!estudianteEditar.idCategoria) {
         alert('Por favor seleccione una categoría');
         return;
@@ -148,6 +163,7 @@ const StudentTable: FC = () => {
       }
   
       const datosEstudiante = {
+        id: estudianteEditar.id,  // Incluir ID para actualizaciones
         nombre: estudianteEditar.nombre,
         apellido: estudianteEditar.apellido,
         email: estudianteEditar.email,
@@ -174,13 +190,14 @@ const StudentTable: FC = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Error detallado:', error.response?.data);
-        alert(`Error: ${error.response?.data?.message || 'Error al guardar el estudiante'}`);
+        alert(`Error: ${error.response?.data || 'Error al guardar el estudiante'}`);
       } else {
         console.error('Error desconocido:', error);
         alert('Error al guardar el estudiante');
       }
     }
   };
+  
   const actualizarCampo = (campo: keyof Estudiante, valor: string | number) => {
     if (estudianteEditar) {
       console.log(`Actualizando ${campo} con valor:`, valor, 'tipo:', typeof valor);
@@ -236,7 +253,7 @@ const StudentTable: FC = () => {
     }
   };
 
-  const eliminarEstudiante = async (id: number) => {
+  const eliminarEstudiante = async (id: string) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este estudiante?')) {
       try {
         await axios.delete(`http://localhost:5180/api/Alumnos/${id}`);
@@ -260,10 +277,11 @@ const StudentTable: FC = () => {
         estudiantes.sort((a, b) => b.nombre.localeCompare(a.nombre));
         break;
       case 'reciente':
-        estudiantes.sort((a, b) => b.id - a.id);
+        // Use string comparison or convert to dates if these are date-based IDs
+        estudiantes.sort((a, b) => b.id.localeCompare(a.id));
         break;
       case 'antiguo':
-        estudiantes.sort((a, b) => a.id - b.id);
+        estudiantes.sort((a, b) => a.id.localeCompare(b.id));
         break;
     }
     
@@ -283,7 +301,7 @@ const StudentTable: FC = () => {
           <input 
             type="search" 
             className="form-control" 
-            placeholder="Buscar alumno..." 
+            placeholder="Buscar por ID o nombre..." 
             style={{width: '200px'}} 
             value={terminoBusqueda}
             onChange={manejarBusqueda}
@@ -315,7 +333,7 @@ const StudentTable: FC = () => {
           <input 
             type="search" 
             className="form-control" 
-            placeholder="Buscar por nombre, apellido o email..." 
+            placeholder="Buscar por ID, nombre, apellido o email..." 
             style={{width: '300px'}} 
             value={terminoBusqueda}
             onChange={manejarBusqueda}
@@ -405,50 +423,66 @@ const StudentTable: FC = () => {
         </nav>
       </div>
 
-       {/* Modal de edición/creación */}
-       <Modal show={mostrarModal} onHide={() => setMostrarModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {esNuevoEstudiante ? 'Agregar Estudiante' : 'Editar Estudiante'}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {estudianteEditar && (
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Nombre</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={estudianteEditar.nombre}
-                  onChange={(e) => actualizarCampo('nombre', e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Apellido</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={estudianteEditar.apellido}
-                  onChange={(e) => actualizarCampo('apellido', e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Teléfono</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={estudianteEditar.telefono}
-                  onChange={(e) => actualizarCampo('telefono', e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  value={estudianteEditar.email}
-                  onChange={(e) => actualizarCampo('email', e.target.value)}
-                />
-              </Form.Group>
-
-
+      {/* Modal de edición/creación */}
+<Modal show={mostrarModal} onHide={() => setMostrarModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>
+      {esNuevoEstudiante ? 'Agregar Estudiante' : 'Editar Estudiante'}
+    </Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {estudianteEditar && (
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>ID</Form.Label>
+          <Form.Control
+            type="text"
+            value={estudianteEditar.id}
+            onChange={(e) => actualizarCampo('id', e.target.value)}
+            placeholder="Ingrese un ID único"
+            readOnly={!esNuevoEstudiante}
+          />
+          <Form.Text className="text-muted">
+            {esNuevoEstudiante 
+              ? "Este ID debe ser único para cada estudiante" 
+              : "El ID no se puede modificar una vez creado"}
+          </Form.Text>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Nombre</Form.Label>
+          <Form.Control
+            type="text"
+            value={estudianteEditar.nombre}
+            onChange={(e) => actualizarCampo('nombre', e.target.value)}
+          />
+        </Form.Group>
+        
+        {/* El resto del formulario permanece igual */}
+        <Form.Group className="mb-3">
+          <Form.Label>Apellido</Form.Label>
+          <Form.Control
+            type="text"
+            value={estudianteEditar.apellido}
+            onChange={(e) => actualizarCampo('apellido', e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Teléfono</Form.Label>
+          <Form.Control
+            type="text"
+            value={estudianteEditar.telefono}
+            onChange={(e) => actualizarCampo('telefono', e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            value={estudianteEditar.email}
+            onChange={(e) => actualizarCampo('email', e.target.value)}
+          />
+        </Form.Group>
+ 
               
              
               

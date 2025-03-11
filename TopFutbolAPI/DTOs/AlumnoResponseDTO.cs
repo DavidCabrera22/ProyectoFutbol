@@ -2,13 +2,13 @@ namespace TopFutbolAPI.DTOs
 {
     public class AlumnoResponseDTO
     {
-        public int ID { get; set; }
-        public string Nombre { get; set; }
-        public string Apellido { get; set; }
-        public string Email { get; set; }
-        public string Telefono { get; set; }
-        public string NombreSede { get; set; }
-        public string NombreCategoria { get; set; }
-        public string NombreFormador { get; set; }
+        public string ID { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public string Apellido { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Telefono { get; set; } = string.Empty;
+        public string NombreSede { get; set; } = string.Empty;
+        public string NombreCategoria { get; set; } = string.Empty;
+        public string NombreFormador { get; set; } = string.Empty;
     }
 }

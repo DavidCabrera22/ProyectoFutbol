@@ -47,7 +47,8 @@ namespace TopFutbolAPI.Controllers
                 .Include(a => a.Formador)
                 .Where(a => a.Nombre.Contains(query) || 
                            a.Apellido.Contains(query) || 
-                           a.Email.Contains(query))
+                           a.Email.Contains(query) ||
+                           a.ID.Contains(query))
                 .Select(a => new AlumnoResponseDTO
                 {
                     ID = a.ID,
@@ -63,7 +64,7 @@ namespace TopFutbolAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<AlumnoResponseDTO>> GetAlumno(int id)
+        public async Task<ActionResult<AlumnoResponseDTO>> GetAlumno(string id)
         {
             var alumno = await _context.Alumnos
                 .Include(a => a.Sede)
@@ -94,8 +95,15 @@ namespace TopFutbolAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<AlumnoResponseDTO>> PostAlumno(AlumnoDTO alumnoDTO)
         {
+            // Verificar si ya existe un alumno con ese ID
+            if (await _context.Alumnos.AnyAsync(a => a.ID == alumnoDTO.ID))
+            {
+                return Conflict("Ya existe un alumno con ese número de identificación");
+            }
+
             var alumno = new Alumno
             {
+                ID = alumnoDTO.ID,
                 Nombre = alumnoDTO.Nombre,
                 Apellido = alumnoDTO.Apellido,
                 Email = alumnoDTO.Email,
@@ -130,8 +138,13 @@ namespace TopFutbolAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<AlumnoResponseDTO>> PutAlumno(int id, AlumnoDTO alumnoDTO)
+        public async Task<ActionResult<AlumnoResponseDTO>> PutAlumno(string id, AlumnoDTO alumnoDTO)
         {
+            if (id != alumnoDTO.ID)
+            {
+                return BadRequest("El ID en la URL no coincide con el ID en los datos");
+            }
+
             var alumno = await _context.Alumnos.FindAsync(id);
             if (alumno == null)
             {
@@ -181,7 +194,7 @@ namespace TopFutbolAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAlumno(int id)
+        public async Task<IActionResult> DeleteAlumno(string id)
         {
             var alumno = await _context.Alumnos.FindAsync(id);
             if (alumno == null)
@@ -195,7 +208,7 @@ namespace TopFutbolAPI.Controllers
             return NoContent();
         }
 
-        private bool AlumnoExists(int id)
+        private bool AlumnoExists(string id)
         {
             return _context.Alumnos.Any(e => e.ID == id);
         }

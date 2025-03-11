@@ -10,7 +10,7 @@ namespace TopFutbolAPI.Models
     }
         [Key]
         public int IdCategoria { get; set; }
-        public string Nombre { get; set; }
+        public string Nombre { get; set; } = string.Empty;
         public virtual ICollection<Alumno> Alumnos { get; set; }
     }
 }

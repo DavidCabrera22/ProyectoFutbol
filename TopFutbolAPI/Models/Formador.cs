@@ -10,8 +10,8 @@ namespace TopFutbolAPI.Models
     }
         [Key]
         public int IdFormador { get; set; }
-        public string Nombre { get; set; }
-        public string Telefono { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public string Telefono { get; set; } = string.Empty;
         public virtual ICollection<Alumno> Alumnos { get; set; }
     }
 }
