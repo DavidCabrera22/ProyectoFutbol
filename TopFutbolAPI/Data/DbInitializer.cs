@@ -1,4 +1,5 @@
 using TopFutbolAPI.Models;
+using System;
 
 namespace TopFutbolAPI.Data
 {
@@ -48,6 +49,39 @@ namespace TopFutbolAPI.Data
             context.Formadores.AddRange(formadores);
             context.SaveChanges();
 
+            // Agregar Tipos de Movimiento
+            var tiposMovimiento = new TipoMovimiento[]
+            {
+                new TipoMovimiento { Nombre = "Ingreso", Estado = 0 },
+                new TipoMovimiento { Nombre = "Egreso", Estado = 1 },
+                new TipoMovimiento { Nombre = "Transferencia", Estado = 0 }
+            };
+
+            context.TiposMovimiento.AddRange(tiposMovimiento);
+            context.SaveChanges();
+
+            // Agregar Servicios
+            var servicios = new Servicio[]
+            {
+                new Servicio { Nombre = "Matrícula", Valor = 100.00m },
+                new Servicio { Nombre = "Mensualidad", Valor = 50.00m },
+                new Servicio { Nombre = "Equipamiento", Valor = 75.00m }
+            };
+
+            context.Servicios.AddRange(servicios);
+            context.SaveChanges();
+
+            // Agregar Tipos de Recaudo
+            var tiposRecaudo = new TipoRecaudo[]
+            {
+                new TipoRecaudo { Nombre = "Efectivo" },
+                new TipoRecaudo { Nombre = "Tarjeta de Crédito" },
+                new TipoRecaudo { Nombre = "Transferencia Bancaria" }
+            };
+
+            context.TiposRecaudo.AddRange(tiposRecaudo);
+            context.SaveChanges();
+
             // Agregar Alumnos con IDs de tipo string
             var alumnos = new Alumno[]
             {
@@ -84,6 +118,61 @@ namespace TopFutbolAPI.Data
             };
 
             context.Alumnos.AddRange(alumnos);
+            context.SaveChanges();
+
+            // Agregar algunos movimientos de ejemplo
+            var movimientos = new Movimiento[]
+            {
+                new Movimiento {
+                    Fecha = DateTime.Now.AddDays(-10),
+                    Valor = 100.00m,
+                    IdTipo = 1,
+                    IdSede = 1,
+                    IdTipoRecaudo = 1,
+                    IdAlumno = "A001",
+                    IdServicio = 1,
+                    Caja = "Caja 1",
+                    Soporte = "Recibo 001",
+                    Hora = DateTime.Now.TimeOfDay
+                },
+                new Movimiento {
+                    Fecha = DateTime.Now.AddDays(-5),
+                    Valor = 50.00m,
+                    IdTipo = 1,
+                    IdSede = 2,
+                    IdTipoRecaudo = 2,
+                    IdAlumno = "A002",
+                    IdServicio = 2,
+                    Caja = "Caja 2",
+                    Soporte = "Recibo 002",
+                    Hora = DateTime.Now.TimeOfDay
+                }
+            };
+
+            context.Movimientos.AddRange(movimientos);
+            context.SaveChanges();
+
+            // Agregar saldos iniciales
+            var saldos = new Saldo[]
+            {
+                new Saldo {
+                    IdSede = 1,
+                    Fecha = DateTime.Now,
+                    Valor = 100.00m
+                },
+                new Saldo {
+                    IdSede = 2,
+                    Fecha = DateTime.Now,
+                    Valor = 50.00m
+                },
+                new Saldo {
+                    IdSede = 3,
+                    Fecha = DateTime.Now,
+                    Valor = 0.00m
+                }
+            };
+
+            context.Saldos.AddRange(saldos);
             context.SaveChanges();
         }
     }

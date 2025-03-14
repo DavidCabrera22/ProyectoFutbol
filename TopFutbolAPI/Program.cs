@@ -23,7 +23,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Inicializar la base de datos con datos de prueba
+// Comentamos la inicialización automática y usaremos migraciones
+/*
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -31,7 +32,7 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<AppDbContext>();
         
-        // Asegurarse de que la base de datos se crea desde cero
+        // Eliminar la base de datos existente y crearla de nuevo
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
         
@@ -44,6 +45,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Ocurrió un error al inicializar la base de datos.");
     }
 }
+*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
