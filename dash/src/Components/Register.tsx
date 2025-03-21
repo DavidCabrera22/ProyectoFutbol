@@ -29,21 +29,24 @@ const Register: React.FC = () => {
       return;
     }
     
-    try {
-      setError('');
-      setLoading(true);
-      await register(nombreUsuario, email, password);
-      navigate('/dashboard');
-    } catch (err: any) {
-      console.error('Error durante el registro:', err);
-      if (err.response && err.response.data) {
-        setError(err.response.data);
-      } else {
-        setError('Error al registrar usuario. Por favor, intenta de nuevo.');
-      }
-    } finally {
-      setLoading(false);
+      // ... existing code ...
+  try {
+    setError('');
+    setLoading(true);
+    await register(nombreUsuario, email, password);
+    navigate('/dashboard');
+  } catch (err: unknown) {
+    console.error('Error durante el registro:', err);
+    if (err && typeof err === 'object' && 'response' in err && 
+        err.response && typeof err.response === 'object' && 'data' in err.response) {
+      setError(err.response.data as string);
+    } else {
+      setError('Error al registrar usuario. Por favor, intenta de nuevo.');
     }
+  } finally {
+    setLoading(false);
+  }
+  // ... existing code ...
   };
 
   return (

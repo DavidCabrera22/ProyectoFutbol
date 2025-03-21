@@ -2,7 +2,7 @@
 .sidebar-container {
   width: 250px;
   height: 100vh;
-  background-color: #ffffff !important;
+  background-color: #470202 !important;
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);

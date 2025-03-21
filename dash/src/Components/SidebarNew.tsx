@@ -1,10 +1,19 @@
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import './sidebar-new.css'; // Importamos directamente el CSS aquí también
 
-const Sidebar = () => {
-  const { logout, user } = useAuth();
+const SidebarNew = () => {
+  console.log('SidebarNew component rendering');
+  const { logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+
+  // Añadimos un useEffect para verificar que el componente se monta
+  useEffect(() => {
+    console.log('SidebarNew component mounted');
+    // Podemos añadir un estilo directo para forzar la visualización
+    document.querySelector('.sidebar-container')?.setAttribute('style', 'background-color: #470202 !important');
+  }, []);
 
   const handleLogout = () => {
     if (window.confirm('¿Estás seguro que deseas cerrar sesión?')) {
@@ -18,6 +27,7 @@ const Sidebar = () => {
     // Here you would implement actual dark mode functionality
   };
 
+  // El resto del componente permanece igual
   return (
     <div className="sidebar-container">
       <div className="sidebar-logo">
@@ -60,7 +70,7 @@ const Sidebar = () => {
           <i className="bi bi-arrow-left-right"></i>
           <span>Movimientos</span>
         </NavLink>
-        
+
         <NavLink to="/tipos-movimiento" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
           <i className="bi bi-diagram-3"></i>
           <span>Tipos de Movimiento</span>
@@ -90,4 +100,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SidebarNew;

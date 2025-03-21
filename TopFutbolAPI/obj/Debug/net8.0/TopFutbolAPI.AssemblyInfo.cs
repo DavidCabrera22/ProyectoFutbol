@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TopFutbolAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea5dccab172e1d5b77cd280ad3a09489837a1911")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d12b66c3e7489426f9d2a216b944693bdf410926")]
 [assembly: System.Reflection.AssemblyProductAttribute("TopFutbolAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TopFutbolAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
