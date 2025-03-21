@@ -199,6 +199,33 @@ namespace TopFutbolAPI.Controllers
             return NoContent();
         }
 
+        // GET: api/Saldos/resumen
+        [HttpGet("resumen")]
+        public async Task<ActionResult<IEnumerable<object>>> GetResumenSaldos()
+        {
+            // Obtener el saldo más reciente para cada sede
+            var sedes = await _context.Sedes.ToListAsync();
+            var resultado = new List<object>();
+
+            foreach (var sede in sedes)
+            {
+                var ultimoSaldo = await _context.Saldos
+                    .Where(s => s.IdSede == sede.IdSede)
+                    .OrderByDescending(s => s.Fecha)
+                    .FirstOrDefaultAsync();
+
+                resultado.Add(new
+                {
+                    IdSede = sede.IdSede,
+                    NombreSede = sede.NombreSede,
+                    UltimaFecha = ultimoSaldo?.Fecha.ToString("dd/MM/yyyy") ?? "Sin registros",
+                    Saldo = ultimoSaldo?.Valor ?? 0
+                });
+            }
+
+            return resultado;
+        }
+
         private bool SaldoExists(int id)
         {
             return _context.Saldos.Any(e => e.IdSaldo == id);

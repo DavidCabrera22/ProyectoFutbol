@@ -19,6 +19,7 @@ namespace TopFutbolAPI.Data
         public DbSet<TipoRecaudo> TiposRecaudo { get; set; }
         public DbSet<Movimiento> Movimientos { get; set; }
         public DbSet<Saldo> Saldos { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
       // ... existing code ...
 

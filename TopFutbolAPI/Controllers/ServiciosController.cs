@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using TopFutbolAPI.Data;
 using TopFutbolAPI.Models;
 using TopFutbolAPI.DTOs;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace TopFutbolAPI.Controllers
 {
@@ -26,7 +29,8 @@ namespace TopFutbolAPI.Controllers
             var serviciosDTO = servicios.Select(s => new ServicioDTO
             {
                 IdServicio = s.IdServicio,
-                Nombre = s.Nombre
+                Nombre = s.Nombre,
+                Valor = s.Valor
             }).ToList();
 
             return serviciosDTO;
@@ -46,7 +50,8 @@ namespace TopFutbolAPI.Controllers
             var servicioDTO = new ServicioDTO
             {
                 IdServicio = servicio.IdServicio,
-                Nombre = servicio.Nombre
+                Nombre = servicio.Nombre,
+                Valor = servicio.Valor
             };
 
             return servicioDTO;
@@ -61,13 +66,14 @@ namespace TopFutbolAPI.Controllers
                 return BadRequest();
             }
 
-            var servicio = new Servicio
+            var servicio = await _context.Servicios.FindAsync(id);
+            if (servicio == null)
             {
-                IdServicio = servicioDTO.IdServicio,
-                Nombre = servicioDTO.Nombre
-            };
+                return NotFound();
+            }
 
-            _context.Entry(servicio).State = EntityState.Modified;
+            servicio.Nombre = servicioDTO.Nombre;
+            servicio.Valor = servicioDTO.Valor;
 
             try
             {
@@ -94,7 +100,8 @@ namespace TopFutbolAPI.Controllers
         {
             var servicio = new Servicio
             {
-                Nombre = servicioDTO.Nombre
+                Nombre = servicioDTO.Nombre,
+                Valor = servicioDTO.Valor
             };
 
             _context.Servicios.Add(servicio);
@@ -119,6 +126,29 @@ namespace TopFutbolAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // POST: api/Servicios/reset
+        [HttpPost("reset")]
+        public async Task<ActionResult> ResetServicios()
+        {
+            // Eliminar todos los servicios existentes
+            _context.Servicios.RemoveRange(await _context.Servicios.ToListAsync());
+            await _context.SaveChangesAsync();
+
+            // Agregar los servicios predeterminados
+            var servicios = new List<Servicio>
+            {
+                new Servicio { IdServicio = 1, Nombre = "Mensualidad", Valor = 70000.00m },
+                new Servicio { IdServicio = 2, Nombre = "Torneo Nacional", Valor = 150000.00m },
+                new Servicio { IdServicio = 3, Nombre = "Abono a Mensualidad", Valor = 0.00m },
+                new Servicio { IdServicio = 4, Nombre = "Abono a Torneo Nacional", Valor = 0.00m }
+            };
+
+            _context.Servicios.AddRange(servicios);
+            await _context.SaveChangesAsync();
+
+            return Ok("Servicios restablecidos correctamente");
         }
 
         private bool ServicioExists(int id)
