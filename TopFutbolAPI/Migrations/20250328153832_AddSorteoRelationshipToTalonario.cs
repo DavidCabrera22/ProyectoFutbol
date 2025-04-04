@@ -5,7 +5,7 @@
 namespace TopFutbolAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedData : Migration
+    public partial class AddSorteoRelationshipToTalonario : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

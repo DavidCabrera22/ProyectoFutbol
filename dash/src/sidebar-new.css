@@ -1,0 +1,233 @@
+/* Estilos para el sidebar */
+.sidebar-container {
+  width: 250px;
+  height: 100vh;
+  background-color: #470202 !important;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: #4b5563 !important;
+  z-index: 1000;
+  padding: 16px 0;
+}
+
+.sidebar-logo {
+  padding: 8px 20px 24px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-weight: 600;
+  font-size: 18px;
+  color: #4b5563 !important;
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  color: #4b5563 !important;
+  text-decoration: none;
+  margin-bottom: 2px;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.nav-item i {
+  font-size: 18px;
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+  color: #6b7280 !important;
+}
+
+.nav-item span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563 !important;
+}
+
+.nav-item:hover {
+  background-color: #f3f4f6;
+  color: #1d4ed8 !important;
+}
+
+.nav-item:hover i {
+  color: #1d4ed8 !important;
+}
+
+.nav-item.active {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+}
+
+.nav-item.active i {
+  color: #1d4ed8 !important;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  margin-top: auto;
+  border-top: 1px solid #f3f4f6;
+}
+
+.dark-mode-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e5e7eb;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #3b82f6;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  background-color: #6b7280 !important;
+  color: white !important;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+
+.logout-button:hover {
+  background-color: #4b5563 !important;
+}
+
+.logout-button i {
+  margin-right: 8px;
+  color: white !important;
+}
+
+.notification-badge {
+  background-color: #e5e7eb;
+  color: #4b5563;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+/* Anular cualquier estilo de Bootstrap que pueda estar interfiriendo */
+.bg-dark, .navbar-dark {
+  background-color: #ffffff !important;
+}
+
+.nav-link {
+  color: #4b5563 !important;
+}
+
+.nav-link.active {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+}
+
+/* Estilos para corregir el problema de los dropdowns */
+.sidebar-container .dropdown-menu {
+  position: static !important;
+  float: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background-color: inherit !important;
+  padding-left: 20px !important;
+  transform: none !important;
+}
+
+.sidebar-container .dropdown-item {
+  padding: 8px 15px !important;
+  color: #4b5563 !important;
+}
+
+.sidebar-container .dropdown-toggle::after {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sidebar-container .collapse,
+.sidebar-container .collapsing {
+  width: 100% !important;
+  padding-left: 15px !important;
+}
+
+.sidebar-container a,
+.sidebar-container button {
+  width: 100% !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}

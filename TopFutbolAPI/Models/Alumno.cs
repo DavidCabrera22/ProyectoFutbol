@@ -6,19 +6,36 @@ namespace TopFutbolAPI.Models
     public class Alumno
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Quitar autoincremento
-        public string ID { get; set; } = string.Empty; // Cambiado de int a string
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] // Esto evita que se genere automáticamente
+        public string ID { get; set; } = string.Empty;
         
+        [Required]
         public string Nombre { get; set; } = string.Empty;
+        
+        [Required]
         public string Apellido { get; set; } = string.Empty;
+        
+        [Required]
         public string Email { get; set; } = string.Empty;
+        
+        [Required]
         public string Telefono { get; set; } = string.Empty;
+        
         public int IdSede { get; set; }
+        
+        [ForeignKey("IdSede")]
+        public virtual Sede? Sede { get; set; }
+        
         public int IdCategoria { get; set; }
+        
+        [ForeignKey("IdCategoria")]
+        public virtual Categoria? Categoria { get; set; }
+        
         public int IdFormador { get; set; }
         
-        public virtual Sede? Sede { get; set; }
-        public virtual Categoria? Categoria { get; set; }
+        [ForeignKey("IdFormador")]
         public virtual Formador? Formador { get; set; }
+
+        public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
     }
 }
