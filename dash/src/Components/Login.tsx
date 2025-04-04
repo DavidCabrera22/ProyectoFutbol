@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Row, Col, Card, Alert } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './login.css';
@@ -11,7 +11,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
-  const { login, logout, isAuthenticated } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   // Al cargar el componente, asegurarse de que el usuario esté desconectado
@@ -30,7 +30,7 @@ const Login: React.FC = () => {
       await login(email, password);
       console.log('Login exitoso, redirigiendo a dashboard');
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error durante el login:', err);
       setError('Error al iniciar sesión. Verifica tus credenciales.');
     } finally {

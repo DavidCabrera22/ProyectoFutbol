@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TopFutbolAPI.Data;
 
@@ -11,9 +12,11 @@ using TopFutbolAPI.Data;
 namespace TopFutbolAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250328165127_AddFechaCreacionToSorteoBoleta")]
+    partial class AddFechaCreacionToSorteoBoleta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -410,30 +413,32 @@ namespace TopFutbolAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPago"));
 
                     b.Property<string>("Estado")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaPago")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdAlumno")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("IdBoleta")
+                    b.Property<int>("IdBoleta")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImagenSoporte")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("MetodoPago")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Observaciones")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Referencia")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdPago");
@@ -762,12 +767,14 @@ namespace TopFutbolAPI.Migrations
                     b.HasOne("TopFutbolAPI.Models.Alumno", "Alumno")
                         .WithMany()
                         .HasForeignKey("IdAlumno")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("TopFutbolAPI.Models.SorteoBoleta", "Boleta")
                         .WithMany()
                         .HasForeignKey("IdBoleta")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Alumno");
 

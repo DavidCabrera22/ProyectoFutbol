@@ -1,5 +1,6 @@
 using TopFutbolAPI.Models;
 using System;
+using System.Linq;
 
 namespace TopFutbolAPI.Data
 {
@@ -27,27 +28,32 @@ namespace TopFutbolAPI.Data
             context.Sedes.AddRange(sedes);
             context.SaveChanges();
 
-            // Agregar Categorías
-            var categorias = new Categoria[]
-            {
-                new Categoria { Nombre = "Infantil" },
-                new Categoria { Nombre = "Juvenil" },
-                new Categoria { Nombre = "Senior" }
-            };
-
-            context.Categorias.AddRange(categorias);
-            context.SaveChanges();
-
             // Agregar Formadores
             var formadores = new Formador[]
             {
-                new Formador { Nombre = "Juan Pérez", Telefono = "123456789" },
-                new Formador { Nombre = "María López", Telefono = "987654321" },
-                new Formador { Nombre = "Carlos Rodríguez", Telefono = "555666777" }
+                new Formador { Nombre = "Juan Pérez", Telefono = "123456789", Activo = true },
+                new Formador { Nombre = "María López", Telefono = "987654321", Activo = true },
+                new Formador { Nombre = "Carlos Rodríguez", Telefono = "555666777", Activo = true }
             };
 
             context.Formadores.AddRange(formadores);
             context.SaveChanges();
+
+            // Agregar Categorías
+          // ... existing code ...
+
+           // Agregar Categorías
+            var categorias = new Categoria[]
+            {
+               new Categoria { IdCategoria = 1, Nombre = "Infantil" },
+               new Categoria { IdCategoria = 2, Nombre = "Juvenil" },
+               new Categoria { IdCategoria = 3, Nombre = "Senior" }
+            };
+
+context.Categorias.AddRange(categorias);
+context.SaveChanges();
+
+// ... existing code ...
 
             // Agregar Tipos de Movimiento
             var tiposMovimiento = new TipoMovimiento[]
@@ -152,27 +158,30 @@ namespace TopFutbolAPI.Data
             context.Movimientos.AddRange(movimientos);
             context.SaveChanges();
 
-            // Agregar saldos iniciales
-            var saldos = new Saldo[]
+            // Agregar balances iniciales
+            var balances = new BalanceAlumno[]
             {
-                new Saldo {
+                new BalanceAlumno {
                     IdSede = 1,
+                    IdAlumno = "A001",
                     Fecha = DateTime.Now,
                     Valor = 100.00m
                 },
-                new Saldo {
+                new BalanceAlumno {
                     IdSede = 2,
+                    IdAlumno = "A002",
                     Fecha = DateTime.Now,
                     Valor = 50.00m
                 },
-                new Saldo {
+                new BalanceAlumno {
                     IdSede = 3,
+                    IdAlumno = "A003",
                     Fecha = DateTime.Now,
                     Valor = 0.00m
                 }
             };
 
-            context.Saldos.AddRange(saldos);
+            context.BalancesAlumnos.AddRange(balances);
             context.SaveChanges();
         }
     }

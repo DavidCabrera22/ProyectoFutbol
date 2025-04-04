@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import Dashboard from './Components/Dashboard';
 import Login from './Components/Login';
@@ -7,11 +7,19 @@ import Unauthorized from './Components/Unauthorized';
 import StudentTable from './Components/StudentTable';
 import Trainers from './Components/Trainers';
 import Location from './Components/Location';
+import Categories from './Components/Categories';
 import Saldos from './Components/Saldos';
 import Servicios from './Components/Servicios';
 import Movimientos from './Components/Movimiento';
 import TiposMovimiento from './Components/TiposMovimiento';
 import TiposRecaudo from './Components/TipoRecaudo';
+import MetodosRecaudo from './Components/MetodoRecaudo';
+// Eliminamos la importación de SorteosVendedores
+import SorteosTalonarios from './Components/SorteosTalonarios';
+import SorteosBoletas from './Components/SorteosBoletas';
+import SorteosPagos from './Components/SorteosPagos';
+import SorteosMovimientos from './Components/SorteosMovimientos';
+import TalonarioDigital from './Components/TalonarioDigital';
 import { useAuth } from './Components/AuthContext';
 import { Button, Container } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -43,12 +51,18 @@ const ProtectedRoute: React.FC<{
 // Componente Layout que incluye la barra de navegación y el botón de logout
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { logout, user } = useAuth();
+  const [showSorteosMenu, setShowSorteosMenu] = useState(false);
   
   const handleLogout = () => {
     if (window.confirm('¿Estás seguro que deseas cerrar sesión?')) {
       logout();
       window.location.href = '/login';
     }
+  };
+
+  const toggleSorteosMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowSorteosMenu(!showSorteosMenu);
   };
 
   return (
@@ -83,6 +97,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Link>
           </li>
           <li className="nav-item mb-2">
+            <Link className="nav-link text-white rounded hover-effect" to="/categories">
+              <i className="bi bi-tag me-2"></i>Categorías
+            </Link>
+          </li>
+          <li className="nav-item mb-2">
             <Link className="nav-link text-white rounded hover-effect" to="/servicios">
               <i className="bi bi-list-check me-2"></i>Servicios
             </Link>
@@ -109,6 +128,61 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </Link>
             </li>
           )}
+          <li className="nav-item mb-2">
+            <Link className="nav-link text-white rounded hover-effect" to="/metodos-recaudo">
+              <i className="bi bi-collection-fill me-2"></i>Métodos de Recaudo
+            </Link>
+          </li>
+          <li className="nav-item mb-2">
+            <a 
+              className="nav-link text-white rounded hover-effect" 
+              href="#" 
+              onClick={toggleSorteosMenu}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <div>
+                <i className="bi bi-ticket-perforated me-2"></i>
+                Sorteos y Rifas
+              </div>
+              <i className={`bi bi-chevron-${showSorteosMenu ? 'up' : 'down'}`}></i>
+            </a>
+            {showSorteosMenu && (
+              <ul style={{ 
+                listStyle: 'none', 
+                paddingLeft: '5px', 
+                marginTop: '5px',
+                width: '100%'
+              }}>
+                {/* Eliminamos la opción de Vendedores */}
+                <li className="nav-item mb-2">
+                  <Link className="nav-link text-white rounded hover-effect" to="/sorteos/talonarios">
+                    <i className="bi bi-journal-bookmark me-2"></i>Talonarios
+                  </Link>
+                </li>
+                <li className="nav-item mb-2">
+                  <Link className="nav-link text-white rounded hover-effect" to="/sorteos/boletas">
+                    <i className="bi bi-card-list me-2"></i>Boletas
+                  </Link>
+                </li>
+                <li className="nav-item mb-2">
+                  <Link className="nav-link text-white rounded hover-effect" to="/sorteos/pagos">
+                    <i className="bi bi-cash me-2"></i>Pagos
+                  </Link>
+                </li>
+                <li className="nav-item mb-2">
+                  <Link className="nav-link text-white rounded hover-effect" to="/sorteos/movimientos">
+                    <i className="bi bi-arrow-down-up me-2"></i>Transacciones
+                  </Link>
+                </li>
+                <li className="nav-item mb-2">
+                  <Link className="nav-link text-white rounded hover-effect" to="/talonario-digital">
+                    <i className="bi bi-grid-3x3 me-2"></i>Talonario Digital
+                  </Link>
+                </li>
+              </ul>
+            )}
+          </li>
+          
           <li className="nav-item mt-5">
             <Button variant="outline-danger" size="sm" onClick={handleLogout} className="w-100">
               <i className="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
@@ -176,6 +250,14 @@ function App() {
         </ProtectedRoute>
       } />
       
+      <Route path="/categories" element={
+        <ProtectedRoute>
+          <Layout>
+            <Categories />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
       <Route path="/saldos" element={
         <ProtectedRoute requiredRole="Admin">
           <Layout>
@@ -212,6 +294,56 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <TiposRecaudo />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/metodos-recaudo" element={
+        <ProtectedRoute>
+          <Layout>
+            <MetodosRecaudo />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      {/* Eliminamos la ruta de Vendedores */}
+      
+      <Route path="/sorteos/talonarios" element={
+        <ProtectedRoute>
+          <Layout>
+            <SorteosTalonarios />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/sorteos/boletas" element={
+        <ProtectedRoute>
+          <Layout>
+            <SorteosBoletas />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/sorteos/pagos" element={
+        <ProtectedRoute>
+          <Layout>
+            <SorteosPagos />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/sorteos/movimientos" element={
+        <ProtectedRoute>
+          <Layout>
+            <SorteosMovimientos />
+          </Layout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/talonario-digital" element={
+        <ProtectedRoute>
+          <Layout>
+            <TalonarioDigital />
           </Layout>
         </ProtectedRoute>
       } />

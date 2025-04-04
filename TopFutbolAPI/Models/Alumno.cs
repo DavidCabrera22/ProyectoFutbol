@@ -35,5 +35,7 @@ namespace TopFutbolAPI.Models
         
         [ForeignKey("IdFormador")]
         public virtual Formador? Formador { get; set; }
+
+        public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
     }
 }

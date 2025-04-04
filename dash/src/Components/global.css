@@ -203,6 +203,62 @@ input:checked + .toggle-slider:before {
   color: #1d4ed8 !important;
 }
 
+/* Sorteos dropdown menu styles */
+.sorteos-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.sorteos-dropdown-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 20px;
+  color: #4b5563 !important;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sorteos-dropdown-toggle:hover {
+  background-color: #f3f4f6;
+}
+
+.sorteos-dropdown-menu {
+  list-style: none;
+  padding-left: 5px !important;
+  margin-top: 0;
+  width: 100%;
+  background-color: rgba(243, 244, 246, 0.3);
+  border-radius: 0 0 4px 4px;
+}
+
+.sorteos-dropdown-item {
+  padding: 8px 10px 8px 25px;
+  margin-bottom: 2px;
+  transition: all 0.2s ease;
+}
+
+.sorteos-dropdown-item a {
+  color: #4b5563 !important;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.sorteos-dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.sorteos-dropdown-item i {
+  font-size: 16px;
+  margin-right: 10px;
+  width: 18px;
+  text-align: center;
+  color: #6b7280 !important;
+}
+
 /* Your existing global styles can remain below */
 /* Improved table styling */
 .card {
@@ -285,9 +341,109 @@ min-height: 100vh;
   padding: 1.5rem !important;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .container-fluid {
-    padding: 15px;
-  }
+/* Sorteos section styling */
+/* Add these styles after your existing sorteos table styles */
+
+/* Fix for text visibility in sorteos tables */
+.table {
+  color: #333333 !important;
+}
+
+.table th {
+  color: #333333 !important;
+  background-color: #f8f9fa;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+  color: #333333 !important;
+}
+
+/* Status badge styling */
+.badge.bg-danger, 
+.badge.bg-success, 
+.badge.bg-warning, 
+.badge.bg-info, 
+.badge.bg-secondary {
+  color: white !important;
+  font-weight: 500;
+}
+
+.badge.bg-info {
+  background-color: #0d6efd !important;
+}
+
+.badge.bg-success {
+  background-color: #198754 !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.badge.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+/* Fix for the inactive badge */
+.badge.bg-danger, .badge-danger {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
+
+/* Custom badge for "Inactivo" status */
+.badge-inactivo {
+  background-color: #dc3545 !important;
+  color: white !important;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+/* Override text color for all table elements */
+.table, .table th, .table td, 
+.sorteos-table, .sorteos-table th, .sorteos-table td {
+  color: #333333 !important;
+}
+
+/* Fix for N/A values */
+.table td:contains("N/A"), 
+.sorteos-table td:contains("N/A") {
+  color: #6c757d !important;
+  font-style: italic;
+}
+
+/* Ensure action buttons are visible */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+.btn-outline-primary {
+  color: #9e1a1a !important;
+  border-color: #9e1a1a !important;
+}
+
+.btn-outline-primary:hover {
+  color: white !important;
+  background-color: #9e1a1a !important;
+}
+
+.btn-outline-success {
+  color: #198754 !important;
+  border-color: #198754 !important;
+}
+
+.btn-outline-success:hover {
+  color: white !important;
+  background-color: #198754 !important;
 }

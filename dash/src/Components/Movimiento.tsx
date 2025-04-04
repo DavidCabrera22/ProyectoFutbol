@@ -184,20 +184,11 @@ const Movimientos: FC = () => {
     setEsNuevoMovimiento(false);
     setMostrarModalEdicion(true);
   };
-  
-  const cerrarModal = () => {
-    setMostrarModal(false);
-    setMostrarModalEdicion(false);
-    setEstadoCuentaVisible(false);
-    setAlumnoSeleccionado(null);
-    setEstadoCuenta([]);
-    setMovimientosAlumno([]);
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    let parsedValue: any = value;
+    let parsedValue: string | number = value;
     
     // Convertir a número para campos numéricos
     if (name === 'valor') {
@@ -562,6 +553,11 @@ const Movimientos: FC = () => {
                   </tbody>
                 </table>
               </div>
+              <div className="d-flex justify-content-end mt-3">
+                <Button variant="secondary" onClick={() => setEstadoCuentaVisible(false)}>
+                  Cerrar Estado de Cuenta
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -737,7 +733,7 @@ const Movimientos: FC = () => {
                     {tiposMovimiento.map(tipo => (
                       <option key={tipo.idTipo} value={tipo.idTipo}>
                         {tipo.nombre}
-                      </option>
+                        </option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -822,20 +818,8 @@ const Movimientos: FC = () => {
           <Button variant="secondary" onClick={() => setMostrarModalEdicion(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={() => {
-            guardarMovimiento();
-            setMostrarModalEdicion(false);
-          }} disabled={guardando}>
-            {guardando ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                Guardando...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-save me-1"></i> Guardar Cambios
-              </>
-            )}
+          <Button variant="primary" onClick={guardarMovimiento} disabled={guardando}>
+            {guardando ? 'Guardando...' : 'Guardar Cambios'}
           </Button>
         </Modal.Footer>
       </Modal>

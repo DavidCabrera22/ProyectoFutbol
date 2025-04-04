@@ -1,27 +1,20 @@
-import { Routes, Route } from 'react-router-dom';
-// Cambiamos la importación para ser más explícitos
+// Asegúrate de que la importación sea correcta
 import SidebarNew from './SidebarNew';
 import Dashboard from './Dashboard';
-import Students from './StudentTable';
 import Trainers from './Trainers';
+import Students from './StudentTable';
 import Locations from './Location';
 import Categories from './Categories';
-// Importar los nuevos componentes
 import Movimientos from './Movimiento';
 import Servicios from './Servicios';
 import TiposMovimiento from './TiposMovimiento';
 import TiposRecaudo from './TipoRecaudo';
 import Saldos from './Saldos';
-// Simplificar las importaciones de CSS
-import './global.css';
-// Usar solo un archivo CSS para el sidebar
-import './sidebar-new.css';
+import { Routes, Route } from 'react-router-dom';
+import './dropdown-fix.css'; // Importamos un nuevo archivo CSS para arreglar los dropdowns
 
-// Define content style for better spacing and layout
 const contentStyle = {
-  marginLeft: '250px',
-  width: 'calc(100% - 250px)',
-  minHeight: '100vh',
+  marginLeft: '250px', // Asegúrate de que haya espacio para el sidebar
   padding: '20px',
   backgroundColor: '#f9fafb'
 };
@@ -29,7 +22,6 @@ const contentStyle = {
 const Layout = () => {
   return (
     <div className="d-flex">
-      {/* Cambiamos el nombre del componente para que coincida con la importación */}
       <SidebarNew />
       <div className="flex-grow-1 content-area" style={contentStyle}>
         <Routes>

@@ -7,6 +7,7 @@ const SidebarNew = () => {
   console.log('SidebarNew component rendering');
   const { logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const [showSorteosMenu, setShowSorteosMenu] = useState(false);
 
   // Añadimos un useEffect para verificar que el componente se monta
   useEffect(() => {
@@ -27,11 +28,17 @@ const SidebarNew = () => {
     // Here you would implement actual dark mode functionality
   };
 
+  const toggleSorteosMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowSorteosMenu(!showSorteosMenu);
+  };
+
   // El resto del componente permanece igual
   return (
     <div className="sidebar-container">
       <div className="sidebar-logo">
-        <img src="/images/Futbol.png" alt="TopFutbol Logo" className="logo-image" />
+        {/* Corregimos la ruta del logo para asegurarnos que se carga correctamente */}
+        <img src="/Futbol.png" alt="TopFutbol Logo" className="logo-image" />
         <span className="logo-text">TopFutbol</span>
       </div>
       
@@ -80,6 +87,49 @@ const SidebarNew = () => {
           <i className="bi bi-cash-stack"></i>
           <span>Tipos de Recaudo</span>
         </NavLink>
+        
+        {/* Añadimos el menú de Sorteos y Rifas */}
+        <div className="nav-item">
+          <a 
+            href="#" 
+            className="nav-link" 
+            onClick={toggleSorteosMenu}
+          >
+            <i className="bi bi-ticket-perforated"></i>
+            <span>Sorteos y Rifas</span>
+            <i className={`bi bi-chevron-${showSorteosMenu ? 'up' : 'down'} ms-auto`}></i>
+          </a>
+          
+          {showSorteosMenu && (
+            <div className="submenu">
+              {/* Eliminamos la opción de Vendedores */}
+              <NavLink to="/sorteos/talonarios" className={({isActive}) => `nav-item submenu-item ${isActive ? 'active' : ''}`}>
+                <i className="bi bi-journal-bookmark"></i>
+                <span>Talonarios</span>
+              </NavLink>
+              
+              <NavLink to="/sorteos/boletas" className={({isActive}) => `nav-item submenu-item ${isActive ? 'active' : ''}`}>
+                <i className="bi bi-card-list"></i>
+                <span>Boletas</span>
+              </NavLink>
+              
+              <NavLink to="/sorteos/pagos" className={({isActive}) => `nav-item submenu-item ${isActive ? 'active' : ''}`}>
+                <i className="bi bi-cash"></i>
+                <span>Pagos</span>
+              </NavLink>
+              
+              <NavLink to="/sorteos/movimientos" className={({isActive}) => `nav-item submenu-item ${isActive ? 'active' : ''}`}>
+                <i className="bi bi-arrow-down-up"></i>
+                <span>Transacciones</span>
+              </NavLink>
+              
+              <NavLink to="/talonario-digital" className={({isActive}) => `nav-item submenu-item ${isActive ? 'active' : ''}`}>
+                <i className="bi bi-grid-3x3"></i>
+                <span>Talonario Digital</span>
+              </NavLink>
+            </div>
+          )}
+        </div>
       </nav>
       
       <div className="sidebar-footer">
@@ -87,7 +137,7 @@ const SidebarNew = () => {
           <span>Dark Mode</span>
           <label className="toggle-switch">
             <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
-            <span className="toggle-slider"></span>
+          <span className="toggle-slider"></span>
           </label>
         </div>
         

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TopFutbolAPI.Data;
 
@@ -11,9 +12,11 @@ using TopFutbolAPI.Data;
 namespace TopFutbolAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250328153832_AddSorteoRelationshipToTalonario")]
+    partial class AddSorteoRelationshipToTalonario
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -319,9 +322,6 @@ namespace TopFutbolAPI.Migrations
                     b.Property<int>("IdTalonario")
                         .HasColumnType("int");
 
-                    b.Property<int?>("IdVendedor")
-                        .HasColumnType("int");
-
                     b.Property<string>("NombreComprador")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -345,8 +345,6 @@ namespace TopFutbolAPI.Migrations
                     b.HasIndex("IdSorteo");
 
                     b.HasIndex("IdTalonario");
-
-                    b.HasIndex("IdVendedor");
 
                     b.ToTable("SorteoBoletas");
                 });
@@ -410,30 +408,32 @@ namespace TopFutbolAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdPago"));
 
                     b.Property<string>("Estado")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaPago")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("IdAlumno")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("IdBoleta")
+                    b.Property<int>("IdBoleta")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImagenSoporte")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("MetodoPago")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Observaciones")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Referencia")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("IdPago");
@@ -486,31 +486,6 @@ namespace TopFutbolAPI.Migrations
                     b.HasIndex("IdSorteo");
 
                     b.ToTable("SorteosTalonarios");
-                });
-
-            modelBuilder.Entity("TopFutbolAPI.Models.SorteoVendedor", b =>
-                {
-                    b.Property<int>("IdVendedor")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdVendedor"));
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaRegistro")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("IdAlumno")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("IdVendedor");
-
-                    b.HasIndex("IdAlumno");
-
-                    b.ToTable("SorteosVendedores");
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.TipoMovimiento", b =>
@@ -724,18 +699,11 @@ namespace TopFutbolAPI.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("TopFutbolAPI.Models.SorteoVendedor", "Vendedor")
-                        .WithMany()
-                        .HasForeignKey("IdVendedor")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.Navigation("Alumno");
 
                     b.Navigation("Sorteo");
 
                     b.Navigation("Talonario");
-
-                    b.Navigation("Vendedor");
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.SorteoMovimiento", b =>
@@ -762,12 +730,14 @@ namespace TopFutbolAPI.Migrations
                     b.HasOne("TopFutbolAPI.Models.Alumno", "Alumno")
                         .WithMany()
                         .HasForeignKey("IdAlumno")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("TopFutbolAPI.Models.SorteoBoleta", "Boleta")
                         .WithMany()
                         .HasForeignKey("IdBoleta")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("Alumno");
 
@@ -783,17 +753,6 @@ namespace TopFutbolAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Sorteo");
-                });
-
-            modelBuilder.Entity("TopFutbolAPI.Models.SorteoVendedor", b =>
-                {
-                    b.HasOne("TopFutbolAPI.Models.Alumno", "Alumno")
-                        .WithMany()
-                        .HasForeignKey("IdAlumno")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Alumno");
                 });
 
             modelBuilder.Entity("TopFutbolAPI.Models.Alumno", b =>
