@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: topfutbol-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: topfutbol-frontend
+  template:
+    metadata:
+      labels:
+        app: topfutbol-frontend
+    spec:
+      containers:
+      - name: topfutbol-frontend
+        image: davidcabrera22/topfutbol:frontend
+        ports:
+        - containerPort: 80

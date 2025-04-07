@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: topfutbol-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: topfutbol-api
+  template:
+    metadata:
+      labels:
+        app: topfutbol-api
+    spec:
+      containers:
+      - name: topfutbol-api
+        image: davidcabrera22/topfutbol:api
+        ports:
+        - containerPort: 80
+        env:
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: connection-string

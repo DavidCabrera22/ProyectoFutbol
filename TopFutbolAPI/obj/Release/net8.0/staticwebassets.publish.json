@@ -1,0 +1,20 @@
+{
+  "Version": 1,
+  "Hash": "3jjjyeIn3TAK7/2M8jtgV+NgP1j+fEvRUWJXbARG8x0=",
+  "Source": "TopFutbolAPI",
+  "BasePath": "_content/TopFutbolAPI",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "TopFutbolAPI\\wwwroot",
+      "Source": "TopFutbolAPI",
+      "ContentRoot": "C:\\Users\\W11\\HOLA\\TopFutbolAPI\\wwwroot\\",
+      "BasePath": "_content/TopFutbolAPI",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [],
+  "Endpoints": []
+}
