@@ -1,6 +1,8 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-production.up.railway.app';
+
 
 interface Servicio {
   idServicio: number;
@@ -19,7 +21,7 @@ const Servicios: FC = () => {
     const obtenerDatos = async () => {
       try {
         setLoading(true);
-        const respServicios = await axios.get('http://localhost:5180/api/Servicios');
+        const respServicios =   await axios.get(`${API_URL}/api/Servicios`);
         
         setServicios(respServicios.data);
       } catch (error) {
@@ -70,9 +72,9 @@ const Servicios: FC = () => {
     
     try {
       if (esNuevoServicio) {
-        await axios.post('http://localhost:5180/api/Servicios', servicioEditar);
+        await axios.post(`${API_URL}/api/Servicios`, servicioEditar);
       } else {
-        await axios.put(`http://localhost:5180/api/Servicios/${servicioEditar.idServicio}`, servicioEditar);
+        await axios.put(`${API_URL}/api/Servicios/${servicioEditar.idServicio}`, servicioEditar);
       }
       
       // Recargar datos
@@ -86,7 +88,7 @@ const Servicios: FC = () => {
   const eliminarServicio = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este servicio?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/Servicios/${id}`);
+        await axios.delete(`${API_URL}/api/Servicios/${id}`);
         // Recargar datos
         window.location.reload();
       } catch (error) {

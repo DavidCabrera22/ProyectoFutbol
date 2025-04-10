@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Table, Button, Modal, Form, Spinner, Row, Col, InputGroup, Badge, Image } from 'react-bootstrap';
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Pago {
   idPago: number;
@@ -17,13 +18,13 @@ interface Pago {
 }
 
 interface Vendedor {
-  idVendedor?: number;
+  idVendedor?: number | string;
   idAlumno: string;
   alumno?: {
     nombre: string;
     apellido: string;
   };
-  nombre?: string;
+ nombre?: string;
   apellido?: string;
 }
 
@@ -137,7 +138,7 @@ const SorteosPagos: React.FC = () => {
   const obtenerPagos = async () => {
     try {
       setLoading(true);
-      const respuesta = await axios.get('http://localhost:5180/api/SorteosPagos');
+      const respuesta = await axios.get(`${API_URL}/api/SorteosPagos`);
       console.log('Datos de pagos recibidos:', respuesta.data);
       
       // Verificar que los datos son un array antes de asignarlos
@@ -159,12 +160,12 @@ const SorteosPagos: React.FC = () => {
   const obtenerVendedores = async () => {
     try {
       // Obtener directamente los alumnos como vendedores
-      const respuestaAlumnos = await axios.get('http://localhost:5180/api/Alumnos');
+      const respuestaAlumnos =await axios.get(`${API_URL}/api/Alumnos`);
       console.log('Alumnos recibidos como vendedores:', respuestaAlumnos.data);
       
       if (Array.isArray(respuestaAlumnos.data)) {
         // Transformar alumnos al formato de vendedores
-        const vendedoresDeAlumnos = respuestaAlumnos.data.map((a: any) => ({
+        const vendedoresDeAlumnos = respuestaAlumnos.data.map((a: Alumno) => ({
           idVendedor: a.id,
           idAlumno: a.id,
           nombre: a.nombre,
@@ -186,10 +187,11 @@ const SorteosPagos: React.FC = () => {
       setVendedores([]);
     }
   };
+  
 
   const obtenerAlumnos = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/Alumnos');
+      const respuesta = await axios.get(`${API_URL}/api/Alumnos`);
       console.log('Alumnos recibidos:', respuesta.data);
       
       if (Array.isArray(respuesta.data)) {
@@ -206,7 +208,7 @@ const SorteosPagos: React.FC = () => {
 
   const obtenerMetodosRecaudo = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/MetodosRecaudo');
+      const respuesta =await axios.get(`${API_URL}/api/MetodosRecaudo`);
       console.log('Métodos de recaudo recibidos:', respuesta.data);
       
       // Asegurarse de que los datos tienen el formato correcto
@@ -236,7 +238,7 @@ const SorteosPagos: React.FC = () => {
   const obtenerBoletasAlumno = async (idAlumno: string) => {
     try {
       setLoading(true);
-      const respuesta = await axios.get(`http://localhost:5180/api/SorteosBoletas/alumno/${idAlumno}`);
+      const respuesta = await axios.get(`${API_URL}/api/SorteosBoletas/alumno/${idAlumno}`);
       console.log('Boletas del alumno recibidas:', respuesta.data);
       
       if (Array.isArray(respuesta.data)) {
@@ -257,7 +259,7 @@ const SorteosPagos: React.FC = () => {
     try {
       setLoading(true);
       // Obtener estadísticas directamente desde SorteosBoletas
-      const respuesta = await axios.get(`http://localhost:5180/api/SorteosBoletas/estadisticas/alumno/${idAlumno}`);
+      const respuesta = await axios.get(`${API_URL}/api/SorteosBoletas/estadisticas/alumno/${idAlumno}`);
       console.log('Estadísticas del alumno recibidas:', respuesta.data);
       
       // Verificar que la respuesta contiene datos
@@ -437,7 +439,7 @@ const SorteosPagos: React.FC = () => {
       
       // Usar el endpoint correcto para subir imágenes
       await axios.post(
-        `http://localhost:5180/api/SorteosPagos/${idPago}/imagen`,
+        `${API_URL}/api/SorteosPagos/${idPago}/imagen`,
         formData,
         {
           headers: {
@@ -493,7 +495,7 @@ const SorteosPagos: React.FC = () => {
       
       if (esNuevoPago) {
         // Crear nuevo pago
-        respuesta = await axios.post('http://localhost:5180/api/SorteosPagos', datosPago);
+        respuesta = await axios.post(`${API_URL}/api/SorteosPagos`, datosPago);
         console.log('Pago creado:', respuesta.data);
         
         // Si hay imagen, subirla después de crear el pago
@@ -510,7 +512,7 @@ const SorteosPagos: React.FC = () => {
       } else {
         // Actualizar pago existente
         const idPago = pagoEditar.idPago;
-        respuesta = await axios.put(`http://localhost:5180/api/SorteosPagos/${idPago}`, datosPago);
+        respuesta = await axios.put(`${API_URL}/api/SorteosPagos/${idPago}`, datosPago);
         console.log('Pago actualizado:', respuesta.data);
         
         // Si hay nueva imagen, subirla
@@ -553,7 +555,7 @@ const SorteosPagos: React.FC = () => {
     
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5180/api/SorteosPagos/${idPago}`);
+      await axios.delete(`${API_URL}/api/SorteosPagos/${idPago}`);
       alert('Pago eliminado con éxito');
       obtenerPagos();
     } catch (error) {
@@ -778,18 +780,22 @@ const SorteosPagos: React.FC = () => {
                 <Row>
                   <Col md={6}>
                   <p className="mb-1"><strong>Nombre:</strong> {getNombreVendedor(pagoEditar.idAlumno)}</p>
-                    <p className="mb-1"><strong>ID:</strong> {pagoEditar.idAlumno}</p>
+                  <p className="mb-1"><strong>ID:</strong> {pagoEditar.idAlumno}</p>
                   </Col>
                   <Col md={6}>
-                  <p className="mb-1"><strong>Nombre:</strong> {getNombreVendedor(pagoEditar.idAlumno)}</p>
-                    <p className="mb-1"><strong>ID:</strong> {pagoEditar.idAlumno}</p>
+                    <p className="mb-1"><strong>Boletas asignadas:</strong> {boletasVendedor.total}</p>
+                    <p className="mb-1"><strong>Boletas vendidas:</strong> {boletasVendedor.vendidas}</p>
                   </Col>
-                  <Col md={6}>
-                    <p className="mb-0"><strong>Total Boletas:</strong> {boletasVendedor.total}</p>
-                    <p className="mb-0"><strong>Vendidas:</strong> {boletasVendedor.vendidas}</p>
-                    <p className="mb-0"><strong>Valor Total:</strong> ${formatearNumero(boletasVendedor.valorTotal)}</p>
-                    <p className="mb-0"><strong>Pagado:</strong> ${formatearNumero(boletasVendedor.pagado)}</p>
-                    <p className="mb-0"><strong>Pendiente:</strong> ${formatearNumero(boletasVendedor.pendiente)}</p>
+                </Row>
+                <Row className="mt-2">
+                  <Col md={4}>
+                    <p className="mb-1"><strong>Valor total:</strong> ${formatearNumero(boletasVendedor.valorTotal)}</p>
+                  </Col>
+                  <Col md={4}>
+                    <p className="mb-1"><strong>Pagado:</strong> ${formatearNumero(boletasVendedor.pagado)}</p>
+                  </Col>
+                  <Col md={4}>
+                    <p className="mb-1"><strong>Pendiente:</strong> ${formatearNumero(boletasVendedor.pendiente)}</p>
                   </Col>
                 </Row>
               </div>
@@ -804,10 +810,9 @@ const SorteosPagos: React.FC = () => {
                     <Form.Control
                       type="number"
                       name="monto"
-                      value={pagoEditar.monto || ''}
+                      value={pagoEditar.monto || 0}
                       onChange={handleInputChange}
                       min="0"
-                      step="1000"
                     />
                   </InputGroup>
                 </Form.Group>
@@ -819,7 +824,6 @@ const SorteosPagos: React.FC = () => {
                     name="metodoPago"
                     value={pagoEditar.metodoPago || ''}
                     onChange={handleInputChange}
-                    required
                   >
                     <option value="">Seleccionar método</option>
                     {metodosRecaudo.map(metodo => (
@@ -1054,39 +1058,41 @@ const SorteosPagos: React.FC = () => {
         </Modal.Footer>
       </Modal>
       
-      <style jsx>{`
-        .search-results {
-          position: absolute;
-          z-index: 1000;
-          width: 100%;
-          max-height: 300px;
-          overflow-y: auto;
-          background-color: white;
-          border: 1px solid #ced4da;
-          border-radius: 0.25rem;
-          margin-top: 5px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .search-result-item {
-          padding: 10px 15px;
-          border-bottom: 1px solid #f0f0f0;
-          cursor: pointer;
-        }
-        
-        .search-result-item:hover {
-          background-color: #f8f9fa;
-        }
-        
-        .search-result-item:last-child {
-          border-bottom: none;
-        }
-        
-        .preview-container {
-          position: relative;
-          display: inline-block;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .search-results {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            margin-top: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+          
+          .search-result-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+          }
+          
+          .search-result-item:hover {
+            background-color: #f8f9fa;
+          }
+          
+          .search-result-item:last-child {
+            border-bottom: none;
+          }
+          
+          .preview-container {
+            position: relative;
+            display: inline-block;
+          }
+        `
+      }} />
     </div>
   );
 };

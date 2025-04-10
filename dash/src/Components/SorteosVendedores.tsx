@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Spinner, Row, Col } from 'react-bootstrap';
+/*import React, { useState, useEffect } from 'react';
+//import { Table, Button, Modal, Form, Spinner, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 
 interface Alumno {
@@ -347,4 +347,4 @@ const SorteosVendedores: React.FC = () => {
   );
 };
 
-export default SorteosVendedores;
+export default SorteosVendedores;*/

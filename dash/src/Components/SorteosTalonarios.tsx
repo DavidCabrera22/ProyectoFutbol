@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Spinner, Badge, Alert } from 'react-bootstrap';
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Sorteo {
   idSorteo: number;
@@ -88,7 +89,7 @@ const SorteosTalonarios: React.FC = () => {
   const obtenerSorteos = async () => {
     try {
       setLoading(true);
-      const respuesta = await axios.get('http://localhost:5180/api/Sorteos');
+      const respuesta =await axios.get(`${API_URL}/api/Sorteos`);
       setSorteos(respuesta.data);
     } catch (error) {
       console.error('Error al obtener sorteos:', error);
@@ -100,7 +101,7 @@ const SorteosTalonarios: React.FC = () => {
 
   const obtenerCategorias = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/Categorias');
+      const respuesta = await axios.get(`${API_URL}/api/Categorias`);
       setCategorias(respuesta.data);
     } catch (error) {
       console.error('Error al obtener categorías:', error);
@@ -111,7 +112,7 @@ const SorteosTalonarios: React.FC = () => {
   const obtenerTalonariosPorSorteo = async (idSorteo: number) => {
     try {
       setLoading(true);
-      const respuesta = await axios.get(`http://localhost:5180/api/SorteosTalonarios/sorteo/${idSorteo}`);
+      const respuesta = await axios.get(`${API_URL}/api/SorteosTalonarios/sorteo/${idSorteo}`);
       setTalonariosDelSorteo(respuesta.data);
     } catch (error) {
       console.error('Error al obtener talonarios:', error);
@@ -232,10 +233,10 @@ const SorteosTalonarios: React.FC = () => {
       }
 
       if (esNuevoSorteo) {
-        await axios.post('http://localhost:5180/api/Sorteos', sorteoEditar);
+        await axios.post(`${API_URL}/api/Sorteos`, sorteoEditar);
         setMensaje('Sorteo creado con éxito');
       } else {
-        await axios.put(`http://localhost:5180/api/Sorteos/${sorteoEditar.idSorteo}`, sorteoEditar);
+        await axios.put(`${API_URL}/api/Sorteos/${sorteoEditar.idSorteo}`, sorteoEditar);
         setMensaje('Sorteo actualizado con éxito');
       }
 
@@ -280,7 +281,7 @@ const SorteosTalonarios: React.FC = () => {
       console.log('Datos del talonario a enviar:', talonarioAEnviar);
   
       // Crear el talonario
-      const respuesta = await axios.post('http://localhost:5180/api/SorteosTalonarios', talonarioAEnviar);
+      const respuesta =  await axios.post(`${API_URL}/api/SorteosTalonarios`, talonarioAEnviar);
       console.log('Respuesta del servidor:', respuesta.data);
       
       // Obtener el ID del talonario creado
@@ -288,7 +289,7 @@ const SorteosTalonarios: React.FC = () => {
       
       try {
         setLoading(true);
-        const respuestaBoletas = await axios.post(`http://localhost:5180/api/SorteosTalonarios/${idTalonario}/generar-boletas`);
+        const respuestaBoletas = await axios.post(`${API_URL}/api/SorteosTalonarios/${idTalonario}/generar-boletas`);
         console.log('Respuesta generación boletas:', respuestaBoletas.data);
         setMensaje('Talonario creado y boletas generadas con éxito');
         
@@ -296,7 +297,7 @@ const SorteosTalonarios: React.FC = () => {
         if (sorteoSeleccionado && sorteoSeleccionado.idSorteo === talonarioActual.idSorteo) {
           await obtenerTalonariosPorSorteo(talonarioActual.idSorteo);
         }
-      } catch (errorBoletas: any) {
+      } catch (errorBoletas: unknown) {
         console.error('Error al generar boletas:', errorBoletas);
         
         // Mostrar mensaje de error más detallado
@@ -304,7 +305,8 @@ const SorteosTalonarios: React.FC = () => {
           const errorMessage = errorBoletas.response.data || errorBoletas.message;
           setError(`Error al generar boletas: ${errorBoletas.response.status} - ${errorMessage}`);
         } else {
-          setError(`Error al generar boletas: ${errorBoletas.message || 'Error desconocido'}`);
+          const errorMessage = errorBoletas instanceof Error ? errorBoletas.message : 'Error desconocido';
+          setError(`Error al generar boletas: ${errorMessage}`);
         }
         
         setMensaje('Talonario creado con éxito, pero hubo un error al generar las boletas');
@@ -330,7 +332,7 @@ const SorteosTalonarios: React.FC = () => {
   const generarBoletas = async (idTalonario: number) => {
     try {
       setLoading(true);
-      await axios.post(`http://localhost:5180/api/SorteosTalonarios/${idTalonario}/generar-boletas`);
+      await axios.post(`${API_URL}/api/SorteosTalonarios/${idTalonario}/generar-boletas`);
       setMensaje('Boletas generadas con éxito');
       
       // Actualizar la lista de talonarios
@@ -353,7 +355,7 @@ const SorteosTalonarios: React.FC = () => {
 
   const cambiarEstadoSorteo = async (id: number, nuevoEstado: string) => {
     try {
-      await axios.put(`http://localhost:5180/api/Sorteos/${id}/estado`, { estado: nuevoEstado });
+      await axios.put(`${API_URL}/api/Sorteos/${id}/estado`, { estado: nuevoEstado });
       setMensaje(`Sorteo ${nuevoEstado.toLowerCase()} con éxito`);
       obtenerSorteos();
     } catch (error) {

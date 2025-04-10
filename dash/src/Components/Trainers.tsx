@@ -2,6 +2,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Definición de la interfaz para el tipo de datos de Formador
 interface Formador {
@@ -28,7 +29,7 @@ const Trainers: FC = () => {
   // Función para obtener los formadores desde la API
   const obtenerFormadores = async () => {
     try {
-      const response = await axios.get('http://localhost:5180/api/Formadores');
+      const response = await axios.get(`${API_URL}/api/Formadores`);
       setFormadores(response.data);
       setFormadoresFiltrados(response.data);
     } catch (error) {
@@ -103,7 +104,7 @@ const Trainers: FC = () => {
   const eliminarFormador = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este formador?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/Formadores/${id}`);
+        await axios.delete(`${API_URL}/api/Formadores/${id}`);
         obtenerFormadores(); // Recarga la lista después de eliminar
       } catch (error) {
         console.error('Error al eliminar formador:', error);
@@ -128,11 +129,11 @@ const Trainers: FC = () => {
     try {
       if (esNuevoFormador) {
         // Crea un nuevo formador
-        await axios.post('http://localhost:5180/api/Formadores', formadorEditar);
+        await axios.post(`${API_URL}/api/Formadores`, formadorEditar);
         alert('Formador creado con éxito');
       } else {
         // Actualiza un formador existente
-        await axios.put(`http://localhost:5180/api/Formadores/${formadorEditar.idFormador}`, formadorEditar);
+        await axios.put(`${API_URL}/api/Formadores/${formadorEditar.idFormador}`, formadorEditar);
         alert('Formador actualizado con éxito');
       }
       

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Spinner, Row, Col, InputGroup, Badge, Card } from 'react-bootstrap';
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Movimiento {
   idMovimiento: number;
@@ -76,12 +77,12 @@ const SorteosMovimientos: React.FC = () => {
 
   useEffect(() => {
     calcularResumen();
-  }, [movimientos]);
+  }, [movimientos, filtroFechaInicio, filtroFechaFin, filtroTipo, filtroTalonario, filtroVendedor, tiposMovimiento]);
 
   const obtenerMovimientos = async () => {
     try {
       setLoading(true);
-      const respuesta = await axios.get('http://localhost:5180/api/SorteosMovimientos');
+      const respuesta =await axios.get(`${API_URL}/api/SorteosMovimientos`);
       console.log('Datos de movimientos recibidos:', respuesta.data);
       setMovimientos(respuesta.data);
     } catch (error) {
@@ -94,7 +95,7 @@ const SorteosMovimientos: React.FC = () => {
 
   const obtenerTiposMovimiento = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/TiposMovimiento');
+      const respuesta = await axios.get(`${API_URL}/api/TiposMovimiento`);
       setTiposMovimiento(respuesta.data);
     } catch (error) {
       console.error('Error al obtener tipos de movimiento:', error);
@@ -103,7 +104,7 @@ const SorteosMovimientos: React.FC = () => {
 
   const obtenerTalonarios = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/SorteosTalonarios');
+      const respuesta = await axios.get(`${API_URL}/api/SorteosTalonarios`);
       setTalonarios(respuesta.data);
     } catch (error) {
       console.error('Error al obtener talonarios:', error);
@@ -112,7 +113,7 @@ const SorteosMovimientos: React.FC = () => {
 
   const obtenerVendedores = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/SorteosVendedores');
+      const respuesta = await axios.get(`${API_URL}/api/SorteosVendedores`);
       setVendedores(respuesta.data);
     } catch (error) {
       console.error('Error al obtener vendedores:', error);
@@ -143,8 +144,8 @@ const SorteosMovimientos: React.FC = () => {
       tipo: '',
       monto: 0,
       referencia: '',
-      idTalonario: '',
-      idVendedor: '',
+      idTalonario: undefined,
+      idVendedor: undefined,
       observaciones: ''
     });
     setEsNuevoMovimiento(true);
@@ -172,10 +173,10 @@ const SorteosMovimientos: React.FC = () => {
       }
 
       if (esNuevoMovimiento) {
-        await axios.post('http://localhost:5180/api/SorteosMovimientos', movimientoEditar);
+        await axios.post(`${API_URL}/api/SorteosMovimientos`, movimientoEditar);
         alert('Movimiento registrado con éxito');
       } else {
-        await axios.put(`http://localhost:5180/api/SorteosMovimientos/${movimientoEditar.idMovimiento}`, movimientoEditar);
+        await axios.put(`${API_URL}/api/SorteosMovimientos/${movimientoEditar.idMovimiento}`, movimientoEditar);
         alert('Movimiento actualizado con éxito');
       }
 
@@ -187,7 +188,7 @@ const SorteosMovimientos: React.FC = () => {
     }
   };
 
-  const actualizarCampo = (campo: keyof Movimiento, valor: any) => {
+  const actualizarCampo = (campo: keyof Movimiento, valor: string | number | undefined) => {
     if (movimientoEditar) {
       setMovimientoEditar({
         ...movimientoEditar,
@@ -459,7 +460,7 @@ const SorteosMovimientos: React.FC = () => {
                   step="1000"
                   placeholder="Monto de la transacción"
                   value={movimientoEditar.monto || ''}
-                  onChange={(e) => actualizarCampo('monto', parseInt(e.target.value))}
+                  onChange={(e) => actualizarCampo('monto', parseInt(e.target.value) || 0)}
                 />
               </InputGroup>
             </Form.Group>
@@ -478,7 +479,7 @@ const SorteosMovimientos: React.FC = () => {
                   <Form.Label>Talonario (Opcional)</Form.Label>
                   <Form.Select
                     value={movimientoEditar.idTalonario || ''}
-                    onChange={(e) => actualizarCampo('idTalonario', e.target.value ? parseInt(e.target.value) : null)}
+                    onChange={(e) => actualizarCampo('idTalonario', e.target.value ? parseInt(e.target.value) : undefined)}
                   >
                     <option value="">Ninguno</option>
                     {talonarios.map(talonario => (
@@ -494,7 +495,7 @@ const SorteosMovimientos: React.FC = () => {
                   <Form.Label>Vendedor (Opcional)</Form.Label>
                   <Form.Select
                     value={movimientoEditar.idVendedor || ''}
-                    onChange={(e) => actualizarCampo('idVendedor', e.target.value ? parseInt(e.target.value) : null)}
+                    onChange={(e) => actualizarCampo('idVendedor', e.target.value ? parseInt(e.target.value) : undefined)}
                   >
                     <option value="">Ninguno</option>
                     {vendedores.map(vendedor => (

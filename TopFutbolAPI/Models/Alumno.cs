@@ -36,6 +36,14 @@ namespace TopFutbolAPI.Models
         [ForeignKey("IdFormador")]
         public virtual Formador? Formador { get; set; }
 
+        public bool Activo { get; set; } = true;
+        public string RecomendadoPor { get; set; } = string.Empty;
+        
+        [NotMapped]
+        public string MotivoInactividad { get; set; } = string.Empty;
+
         public virtual ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
+
+        public virtual ICollection<AlumnoInactivacionHistorial> Inactivaciones { get; set; } = new List<AlumnoInactivacionHistorial>();
     }
 }

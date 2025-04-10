@@ -20,6 +20,7 @@ namespace TopFutbolAPI.Data
         public DbSet<SorteoTalonario> SorteosTalonarios { get; set; }
         public DbSet<BalanceAlumno> BalancesAlumnos { get; set; }
         public DbSet<SorteoVendedor> SorteosVendedores { get; set; }
+        public DbSet<AlumnoInactivacionHistorial> AlumnoInactivacionesHistorial { get; set; }
 
         
         // Add missing DbSet properties

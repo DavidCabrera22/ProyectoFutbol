@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface TipoRecaudo {
   idTipoRecaudo: number;
@@ -19,7 +20,7 @@ const TiposRecaudo: FC = () => {
     const obtenerTiposRecaudo = async () => {
       try {
         setLoading(true);
-        const respuesta = await axios.get('http://localhost:5180/api/TiposRecaudo');
+        const respuesta = await axios.get(`${API_URL}/api/TiposRecaudo`);
         console.log('Datos de tipos de recaudo recibidos:', respuesta.data);
         setTiposRecaudo(respuesta.data);
       } catch (error) {
@@ -70,9 +71,9 @@ const TiposRecaudo: FC = () => {
     
     try {
       if (esNuevoTipo) {
-        await axios.post('http://localhost:5180/api/TiposRecaudo', tipoEditar);
+        await axios.post(`${API_URL}/api/TiposRecaudo`, tipoEditar);
       } else {
-        await axios.put(`http://localhost:5180/api/TiposRecaudo/${tipoEditar.idTipoRecaudo}`, tipoEditar);
+        await axios.put(`${API_URL}/api/TiposRecaudo/${tipoEditar.idTipoRecaudo}`, tipoEditar);
       }
       
       // Recargar datos
@@ -86,7 +87,7 @@ const TiposRecaudo: FC = () => {
   const eliminarTipo = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este tipo de recaudo?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/TiposRecaudo/${id}`);
+        await axios.delete(`${API_URL}/api/TiposRecaudo/${id}`);
         // Recargar datos
         window.location.reload();
       } catch (error) {

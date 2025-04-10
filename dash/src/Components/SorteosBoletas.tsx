@@ -1,6 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Button, Badge, Spinner, Alert, Form, Row, Col, Modal, InputGroup } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
+
+// Definir interfaces para los datos de la API
+interface BoletaAPI {
+  idBoleta?: number;
+  idTalonario?: number;
+  numeroBoleta?: number;
+  valorBoleta?: number;
+  estado?: string;
+  fechaVenta?: string;
+  idVendedor?: number;
+  nombreVendedor?: string;
+  nombreComprador?: string;
+  telefonoComprador?: string;
+}
+
+interface TalonarioAPI {
+  idTalonario?: number;
+  numeroInicial?: number;
+  numeroFinal?: number;
+  descripcion?: string;
+  valorBoleta?: number;
+}
+
+interface AlumnoAPI {
+  id?: number;
+  nombre?: string;
+  apellido?: string;
+}
 
 interface Talonario {
   idTalonario: number;
@@ -79,27 +108,29 @@ const SorteosBoletas: React.FC = () => {
 
   const obtenerBoletas = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/SorteosBoletas');
+      const respuesta = await axios.get(`${API_URL}/api/SorteosBoletas`);
       console.log('Datos de boletas recibidos:', respuesta.data);
       
       // Verificar que los datos sean un array
       if (Array.isArray(respuesta.data)) {
         // Asegurarse de que cada boleta tenga los campos necesarios
-        const boletasFormateadas = respuesta.data.map((b: any) => {
-          if (!b) return null;
-          return {
-            idBoleta: b.idBoleta || 0,
-            idTalonario: b.idTalonario || 0,
-            numeroBoleta: b.numeroBoleta || 0,
-            valorBoleta: b.valorBoleta || 0,
-            estado: b.estado || 'Desconocido',
-            fechaVenta: b.fechaVenta,
-            idVendedor: b.idVendedor,
-            nombreVendedor: b.nombreVendedor,
-            nombreComprador: b.nombreComprador,
-            telefonoComprador: b.telefonoComprador
-          };
-        }).filter(Boolean);
+        const boletasFormateadas = respuesta.data
+          .map((b: BoletaAPI) => {
+            if (!b) return null;
+            return {
+              idBoleta: b.idBoleta || 0,
+              idTalonario: b.idTalonario || 0,
+              numeroBoleta: b.numeroBoleta || 0,
+              valorBoleta: b.valorBoleta || 0,
+              estado: b.estado || 'Desconocido',
+              fechaVenta: b.fechaVenta,
+              idVendedor: b.idVendedor,
+              nombreVendedor: b.nombreVendedor,
+              nombreComprador: b.nombreComprador,
+              telefonoComprador: b.telefonoComprador
+            } as Boleta;
+          })
+          .filter((b): b is Boleta => b !== null);
         
         setBoletas(boletasFormateadas);
       } else {
@@ -116,19 +147,21 @@ const SorteosBoletas: React.FC = () => {
 
   const obtenerTalonarios = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/SorteosTalonarios');
+      const respuesta = await axios.get(`${API_URL}/api/SorteosTalonarios`);
       if (Array.isArray(respuesta.data)) {
         // Asegurarse de que cada talonario tenga los campos necesarios
-        const talonariosFormateados = respuesta.data.map((t: any) => {
-          if (!t) return null;
-          return {
-            idTalonario: t.idTalonario || 0,
-            numeroInicial: t.numeroInicial || 0,
-            numeroFinal: t.numeroFinal || 0,
-            descripcion: t.descripcion || 'Sin descripción',
-            valorBoleta: t.valorBoleta || 0
-          };
-        }).filter(Boolean);
+        const talonariosFormateados = respuesta.data
+          .map((t: TalonarioAPI) => {
+            if (!t) return null;
+            return {
+              idTalonario: t.idTalonario || 0,
+              numeroInicial: t.numeroInicial || 0,
+              numeroFinal: t.numeroFinal || 0,
+              descripcion: t.descripcion || 'Sin descripción',
+              valorBoleta: t.valorBoleta || 0
+            } as Talonario;
+          })
+          .filter((t): t is Talonario => t !== null);
         
         setTalonarios(talonariosFormateados);
       } else {
@@ -144,28 +177,30 @@ const SorteosBoletas: React.FC = () => {
   const obtenerVendedores = async () => {
     try {
       // Obtenemos directamente los alumnos que serán nuestros vendedores
-      const respuesta = await axios.get('http://localhost:5180/api/Alumnos');
+      const respuesta = await axios.get(`${API_URL}/api/Alumnos`);
       console.log('Datos de alumnos/vendedores recibidos:', respuesta.data);
       
       // Verificar que los datos sean un array
       if (Array.isArray(respuesta.data)) {
         // Transformamos los datos de alumnos al formato de vendedores
-        const vendedoresFormateados = respuesta.data.map((a: any) => {
-          if (!a) return null;
-          
-          return {
-            idVendedor: a.id, // Usamos el ID del alumno como ID del vendedor
-            idAlumno: a.id,
-            // Estructura anidada para alumno
-            alumno: {
-              nombre: a.nombre || '',
+        const vendedoresFormateados = respuesta.data
+          .map((a: AlumnoAPI) => {
+            if (!a) return null;
+            
+            return {
+              idVendedor: a.id || 0, // Usamos el ID del alumno como ID del vendedor
+              idAlumno: a.id?.toString(),
+              // Estructura anidada para alumno
+              alumno: {
+                nombre: a.nombre || '',
+                apellido: a.apellido || ''
+              },
+              // También guardamos los campos planos para compatibilidad
+              nombreAlumno: a.nombre || '',
               apellido: a.apellido || ''
-            },
-            // También guardamos los campos planos para compatibilidad
-            nombreAlumno: a.nombre || '',
-            apellido: a.apellido || ''
-          };
-        }).filter(Boolean);
+            } as Vendedor;
+          })
+          .filter((v): v is Vendedor => v !== null);
         
         console.log('Alumnos formateados como vendedores:', vendedoresFormateados);
         setVendedores(vendedoresFormateados);
@@ -226,7 +261,7 @@ const SorteosBoletas: React.FC = () => {
         return;
       }
 
-      await axios.put(`http://localhost:5180/api/SorteosBoletas/${boletaEditar.idBoleta}/asignar`, {
+      await axios.put(`${API_URL}/api/SorteosBoletas/${boletaEditar.idBoleta}/asignar`, {
         idVendedor: boletaEditar.idVendedor
       });
       
@@ -246,7 +281,7 @@ const SorteosBoletas: React.FC = () => {
         return;
       }
 
-      await axios.put(`http://localhost:5180/api/SorteosBoletas/${boletaEditar.idBoleta}/vender`, {
+      await axios.put(`${API_URL}/api/SorteosBoletas/${boletaEditar.idBoleta}/vender`, {
         nombreComprador: boletaEditar.nombreComprador,
         telefonoComprador: boletaEditar.telefonoComprador,
         observaciones: ""
@@ -328,7 +363,7 @@ const SorteosBoletas: React.FC = () => {
     }, 500);
   };
 
-  const actualizarCampo = (campo: keyof Boleta, valor: any) => {
+  const actualizarCampo = (campo: keyof Boleta, valor: string | number) => {
     if (boletaEditar) {
       setBoletaEditar({
         ...boletaEditar,
@@ -669,162 +704,156 @@ const SorteosBoletas: React.FC = () => {
             </Form.Group>
 
             {boletaEditar.estado === 'Disponible' && (
-              <Form.Group className="mb-3">
-                <Form.Label>Vendedor</Form.Label>
-                <Form.Select
-                  value={boletaEditar.idVendedor || ''}
-                  onChange={(e) => actualizarCampo('idVendedor', e.target.value)}
-                >
-                  <option value="">Seleccione un vendedor</option>
-                  {vendedores && vendedores.length > 0 ? vendedores.map(vendedor => (
-                    <option key={vendedor.idVendedor || 'unknown'} value={vendedor.idVendedor}>
-                      {getNombreVendedor(vendedor)}
-                    </option>
-                  )) : (
-                    <option value="" disabled>No hay vendedores disponibles</option>
-                  )}
-                </Form.Select>
-              </Form.Group>
-            )}
-
-            {boletaEditar.estado === 'Asignada' && (
-              <>
-                                <Form.Group className="mb-3">
-                  <Form.Label>Vendedor</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={(() => {
-                      if (boletaEditar.idVendedor) {
-                        const vendedor = vendedores.find(v => v.idVendedor === boletaEditar.idVendedor);
-                        return vendedor ? getNombreVendedor(vendedor) : 'Vendedor no encontrado';
-                      }
-                      return '';
-                    })()}
-                    readOnly
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Nombre del Comprador</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Ingrese el nombre del comprador"
-                    value={boletaEditar.nombreComprador || ''}
-                    onChange={(e) => actualizarCampo('nombreComprador', e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Teléfono del Comprador</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Ingrese el teléfono del comprador"
-                    value={boletaEditar.telefonoComprador || ''}
-                    onChange={(e) => actualizarCampo('telefonoComprador', e.target.value)}
-                    required
-                  />
-                </Form.Group>
-              </>
-            )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={cerrarModal}>
-            Cancelar
-          </Button>
-          {boletaEditar.estado === 'Disponible' ? (
-            <Button variant="primary" onClick={asignarBoleta}>
-              Asignar Boleta
-            </Button>
-          ) : (
-            <Button variant="success" onClick={registrarVenta}>
-              Registrar Venta
-            </Button>
-          )}
-        </Modal.Footer>
-      </Modal>
-
-      {/* Modal para ver detalles de boleta vendida */}
-      <Modal show={mostrarModalDetalles} onHide={cerrarModalDetalles}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <i className="bi bi-info-circle me-2"></i>
-            Detalles de Boleta #{boletaDetalles.numeroBoleta}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="p-3 bg-light rounded mb-3">
-            <h5 className="mb-3">Información de la Boleta</h5>
-            <p className="mb-2"><strong>ID:</strong> {boletaDetalles.idBoleta}</p>
-            <p className="mb-2"><strong>Talonario:</strong> {boletaDetalles.idTalonario}</p>
-            <p className="mb-2"><strong>Número:</strong> {boletaDetalles.numeroBoleta}</p>
-            <p className="mb-2">
-              <strong>Valor:</strong> ${boletaDetalles.valorBoleta?.toLocaleString() || '0'}
-            </p>
-            <p className="mb-2">
-              <strong>Estado:</strong> {boletaDetalles.estado && (
-                <Badge bg={
-                  boletaDetalles.estado === 'Disponible' ? 'success' :
-                  boletaDetalles.estado === 'Asignada' ? 'warning' :
-                  boletaDetalles.estado === 'Vendida' ? 'primary' :
-                  boletaDetalles.estado === 'Anulada' ? 'danger' : 'secondary'
-                }>
-                  {boletaDetalles.estado}
-                </Badge>
-              )}
-            </p>
-          </div>
-
-          {(boletaDetalles.nombreVendedor || boletaDetalles.idVendedor) && (
-            <div className="p-3 bg-light rounded mb-3">
-              <h5 className="mb-3">Información del Vendedor</h5>
-              <p className="mb-2">
-                <strong>Nombre:</strong> {
-                  boletaDetalles.nombreVendedor || (() => {
-                    if (boletaDetalles.idVendedor) {
-                      const vendedor = vendedores.find(v => v && v.idVendedor === boletaDetalles.idVendedor);
-                      return vendedor ? getNombreVendedor(vendedor) : 'No especificado';
-                    }
-                    return 'No especificado';
-                  })()
-                }
-              </p>
-              {boletaDetalles.idVendedor && (
-                <p className="mb-2"><strong>ID Vendedor:</strong> {boletaDetalles.idVendedor}</p>
-              )}
-            </div>
-          )}
-
-          {boletaDetalles.nombreComprador && (
-            <div className="p-3 bg-light rounded mb-3">
-              <h5 className="mb-3">Información del Comprador</h5>
-              <p className="mb-2"><strong>Nombre:</strong> {boletaDetalles.nombreComprador}</p>
-              <p className="mb-2"><strong>Teléfono:</strong> {boletaDetalles.telefonoComprador || 'No registrado'}</p>
-              <p className="mb-2">
-                <strong>Fecha de Venta:</strong> {boletaDetalles.fechaVenta ? new Date(boletaDetalles.fechaVenta).toLocaleDateString() : 'No registrada'}
-              </p>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={cerrarModalDetalles}>
-            Cerrar
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={() => {
-              cerrarModalDetalles();
-              if (boletaDetalles.idBoleta) {
-                imprimirBoleta(boletaDetalles as Boleta);
-              }
-            }}
-          >
-            <i className="bi bi-printer me-2"></i>
-            Imprimir Boleta
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-  );
-};
-
-export default SorteosBoletas;
+                              <Form.Group className="mb-3">
+                              <Form.Label>Vendedor</Form.Label>
+                              <Form.Select
+                                value={boletaEditar.idVendedor || ''}
+                                onChange={(e) => actualizarCampo('idVendedor', parseInt(e.target.value))}
+                              >
+                                <option value="">Seleccione un vendedor</option>
+                                {vendedores.map(vendedor => (
+                                  <option key={vendedor.idVendedor} value={vendedor.idVendedor}>
+                                    {getNombreVendedor(vendedor)}
+                                  </option>
+                                ))}
+                              </Form.Select>
+                            </Form.Group>
+                          )}
+            
+                          {boletaEditar.estado === 'Asignada' && (
+                            <>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Vendedor</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  value={(() => {
+                                    if (boletaEditar.idVendedor) {
+                                      const vendedor = vendedores.find(v => v.idVendedor === boletaEditar.idVendedor);
+                                      return vendedor ? getNombreVendedor(vendedor) : 'No especificado';
+                                    }
+                                    return 'No especificado';
+                                  })()}
+                                  readOnly
+                                />
+                              </Form.Group>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Nombre del Comprador</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Ingrese el nombre del comprador"
+                                  value={boletaEditar.nombreComprador || ''}
+                                  onChange={(e) => actualizarCampo('nombreComprador', e.target.value)}
+                                />
+                              </Form.Group>
+                              <Form.Group className="mb-3">
+                                <Form.Label>Teléfono del Comprador</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  placeholder="Ingrese el teléfono del comprador"
+                                  value={boletaEditar.telefonoComprador || ''}
+                                  onChange={(e) => actualizarCampo('telefonoComprador', e.target.value)}
+                                />
+                              </Form.Group>
+                            </>
+                          )}
+                        </Form>
+                      </Modal.Body>
+                      <Modal.Footer>
+                        <Button variant="secondary" onClick={cerrarModal}>
+                          Cancelar
+                        </Button>
+                        {boletaEditar.estado === 'Disponible' && (
+                          <Button variant="primary" onClick={asignarBoleta}>
+                            Asignar
+                          </Button>
+                        )}
+                        {boletaEditar.estado === 'Asignada' && (
+                          <Button variant="success" onClick={registrarVenta}>
+                            Registrar Venta
+                          </Button>
+                        )}
+                      </Modal.Footer>
+                    </Modal>
+            
+                    {/* Modal para ver detalles de boleta */}
+                    <Modal show={mostrarModalDetalles} onHide={cerrarModalDetalles}>
+                      <Modal.Header closeButton>
+                        <Modal.Title>Detalles de Boleta #{boletaDetalles.numeroBoleta}</Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body>
+                        <div className="mb-4">
+                          <h5 className="border-bottom pb-2">Información de la Boleta</h5>
+                          <p className="mb-2"><strong>ID:</strong> {boletaDetalles.idBoleta}</p>
+                          <p className="mb-2"><strong>Talonario:</strong> {boletaDetalles.idTalonario}</p>
+                          <p className="mb-2"><strong>Número:</strong> {boletaDetalles.numeroBoleta}</p>
+                          <p className="mb-2">
+                            <strong>Valor:</strong> ${boletaDetalles.valorBoleta?.toLocaleString() || '0'}
+                          </p>
+                          <p className="mb-2">
+                            <strong>Estado:</strong> {getEstadoBadge(boletaDetalles.estado || 'Desconocido')}
+                          </p>
+                        </div>
+                        
+                        <div className="mb-4">
+                          <h5 className="border-bottom pb-2">Información del Vendedor</h5>
+                          <p className="mb-2">
+                            <strong>ID:</strong> {boletaDetalles.idVendedor || 'No asignado'}
+                          </p>
+                          <p className="mb-2">
+                            <strong>Nombre:</strong> {
+                              boletaDetalles.nombreVendedor || (() => {
+                                if (boletaDetalles.idVendedor) {
+                                  const vendedor = vendedores.find(v => v && v.idVendedor === boletaDetalles.idVendedor);
+                                  return vendedor ? getNombreVendedor(vendedor) : 'No especificado';
+                                }
+                                return 'No especificado';
+                              })()
+                            }
+                          </p>
+                        </div>
+                        
+                        <div className="mb-4">
+                          <h5 className="border-bottom pb-2">Información del Comprador</h5>
+                          <p className="mb-2">
+                            <strong>Nombre:</strong> {boletaDetalles.nombreComprador || 'No especificado'}
+                          </p>
+                          <p className="mb-2">
+                            <strong>Teléfono:</strong> {boletaDetalles.telefonoComprador || 'No especificado'}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <h5 className="border-bottom pb-2">Información de la Venta</h5>
+                          <p className="mb-2">
+                            <strong>Fecha de Venta:</strong> {
+                              boletaDetalles.fechaVenta 
+                                ? new Date(boletaDetalles.fechaVenta).toLocaleDateString() 
+                                : 'No especificado'
+                            }
+                          </p>
+                        </div>
+                      </Modal.Body>
+                      <Modal.Footer>
+                        <Button variant="secondary" onClick={cerrarModalDetalles}>
+                          Cerrar
+                        </Button>
+                        <Button 
+                          variant="outline-secondary" 
+                          onClick={() => {
+                            if (boletaDetalles.idBoleta) {
+                              const boleta = boletas.find(b => b.idBoleta === boletaDetalles.idBoleta);
+                              if (boleta) {
+                                imprimirBoleta(boleta);
+                              }
+                            }
+                          }}
+                        >
+                          <i className="bi bi-printer"></i> Imprimir
+                        </Button>
+                      </Modal.Footer>
+                    </Modal>
+                  </div>
+              );
+            };
+            
+            export default SorteosBoletas;

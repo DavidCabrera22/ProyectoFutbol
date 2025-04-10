@@ -10,5 +10,8 @@ namespace TopFutbolAPI.DTOs
         public int IdSede { get; set; }
         public int IdCategoria { get; set; }
         public int IdFormador { get; set; }
+        public bool Activo { get; set; } = true;
+        public string RecomendadoPor { get; set; } = string.Empty;
+        public string MotivoInactividad { get; set; } = string.Empty;
     }
 }

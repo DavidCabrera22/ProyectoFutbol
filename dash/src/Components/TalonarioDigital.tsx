@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Form, Button, Spinner, Alert, Modal, Table, InputGroup } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Form, Button, Spinner, Alert, Modal, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 import './TalonarioDigital.css';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Boleta {
   idBoleta: number;
@@ -67,6 +68,19 @@ interface AsignacionBoletas {
   cantidad: number;
 }
 
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      title?: string;
+      message?: string;
+      errors?: Record<string, string[]>;
+    } | string;
+  };
+  request?: unknown;
+  message?: string;
+}
+
 const TalonarioDigital: React.FC = () => {
   const [sorteos, setSorteos] = useState<Sorteo[]>([]);
   const [sorteoSeleccionado, setSorteoSeleccionado] = useState<number | null>(null);
@@ -97,7 +111,6 @@ const TalonarioDigital: React.FC = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [vistaActual, setVistaActual] = useState<'categorias' | 'sorteos' | 'talonarios' | 'boletas'>('categorias');
-  const [terminoBusqueda, setTerminoBusqueda] = useState<string>('');
 
   useEffect(() => {
     obtenerCategorias();
@@ -126,7 +139,7 @@ const TalonarioDigital: React.FC = () => {
   const obtenerCategorias = async () => {
     try {
       setLoading(true);
-      const respuesta = await axios.get('http://localhost:5180/api/Categorias');
+      const respuesta = await axios.get(`${API_URL}/api/Categorias`);
       setCategorias(respuesta.data);
     } catch (error) {
       console.error('Error al obtener categorías:', error);
@@ -138,7 +151,7 @@ const TalonarioDigital: React.FC = () => {
 
   const obtenerAlumnos = async () => {
     try {
-      const respuesta = await axios.get('http://localhost:5180/api/Alumnos');
+      const respuesta = await axios.get(`${API_URL}/api/Alumnos`);
       console.log('Datos de alumnos recibidos:', respuesta.data);
       setAlumnos(respuesta.data);
       
@@ -210,7 +223,7 @@ const TalonarioDigital: React.FC = () => {
       console.log(`Obteniendo sorteos para la categoría ID: ${idCategoria}`);
       
       // Obtenemos todos los sorteos
-      const respuesta = await axios.get(`http://localhost:5180/api/Sorteos`);
+      const respuesta = await axios.get(`${API_URL}/api/Sorteos`);
       
       console.log('Respuesta de sorteos (todos):', respuesta.data);
       
@@ -222,30 +235,41 @@ const TalonarioDigital: React.FC = () => {
       console.log('Sorteos filtrados por categoría:', sorteosFiltrados);
       setSorteos(sorteosFiltrados);
       setVistaActual('sorteos');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al obtener sorteos por categoría:', error);
       
       // Mostrar información más detallada sobre el error
-      if (error.response) {
-        // El servidor respondió con un código de estado fuera del rango 2xx
-        setError(`Error ${error.response.status}: ${error.response.data?.message || 'Error al cargar los sorteos'}`);
-        console.log('Datos de respuesta de error:', error.response.data);
-      } else if (error.request) {
-        // La solicitud se realizó pero no se recibió respuesta
-        setError('No se recibió respuesta del servidor. Verifica la conexión.');
-      } else {
-        // Algo ocurrió al configurar la solicitud
-        setError(`Error al cargar los sorteos: ${error.message}`);
-      }
+            // Mostrar información más detallada sobre el error
+            const err = error as ApiError;
+            if (err.response) {
+              // El servidor respondió con un código de estado fuera del rango 2xx
+              let errorMessage = 'Error al cargar los sorteos';
+              
+              if (typeof err.response.data === 'object' && err.response.data !== null) {
+                errorMessage = err.response.data.message || errorMessage;
+              } else if (typeof err.response.data === 'string') {
+                errorMessage = err.response.data;
+              }
+              
+              setError(`Error ${err.response.status}: ${errorMessage}`);
+              console.log('Datos de respuesta de error:', err.response.data);
+            } else if (err.request) {
+              // La solicitud se realizó pero no se recibió respuesta
+              setError('No se recibió respuesta del servidor. Verifica la conexión.');
+            } else {
+              // Algo ocurrió al configurar la solicitud
+              setError(`Error al cargar los sorteos: ${err.message}`);
+            }
     } finally {
       setLoading(false);
     }
   };
 
+
   const obtenerTalonariosPorSorteo = async (idSorteo: number) => {
     try {
       setLoadingTalonarios(true);
-      const respuesta = await axios.get(`http://localhost:5180/api/SorteosTalonarios/sorteo/${idSorteo}`);
+      const respuesta =await axios.get(`${API_URL}/api/SorteosTalonarios/sorteo/${idSorteo}`);
       setTalonarios(respuesta.data);
       setVistaActual('talonarios');
     } catch (error) {
@@ -259,7 +283,7 @@ const TalonarioDigital: React.FC = () => {
   const obtenerBoletasPorTalonario = async (idTalonario: number) => {
     try {
       setLoadingBoletas(true);
-      const respuesta = await axios.get(`http://localhost:5180/api/SorteosBoletas/talonario/${idTalonario}`);
+      const respuesta = await axios.get(`${API_URL}/api/SorteosBoletas/talonario/${idTalonario}`);
       setBoletas(respuesta.data);
       setVistaActual('boletas');
     } catch (error) {
@@ -280,11 +304,6 @@ const TalonarioDigital: React.FC = () => {
 
   const seleccionarTalonario = (idTalonario: number) => {
     setTalonarioSeleccionado(idTalonario);
-  };
-
-  const seleccionarAlumno = (idAlumno: string) => {
-    setAlumnoSeleccionado(idAlumno);
-    setMostrarModalAsignacion(true);
   };
 
   const seleccionarBoleta = (boleta: Boleta) => {
@@ -370,7 +389,7 @@ const TalonarioDigital: React.FC = () => {
       console.log('Enviando datos de venta:', datosVenta);
       
       const respuesta = await axios.put(
-        `http://localhost:5180/api/SorteosBoletas/${boletaSeleccionada.idBoleta}/vender`, 
+        `${API_URL}/api/SorteosBoletas/${boletaSeleccionada.idBoleta}/vender` , 
         datosVenta
       );
   
@@ -385,20 +404,27 @@ const TalonarioDigital: React.FC = () => {
       } else {
         throw new Error('Error al procesar la venta');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al vender boleta:', error);
       
       // Manejo mejorado de errores
-      if (error.response) {
+      const err = error as ApiError;
+      if (err.response) {
         // Extraer el mensaje de error del objeto de respuesta
         let mensajeError = 'Error desconocido al vender la boleta';
         
-        if (typeof error.response.data === 'object') {
-          if (error.response.data.title) {
-            mensajeError = error.response.data.title;
-          } else if (error.response.data.errors) {
+        if (typeof err.response.data === 'object' && err.response.data !== null) {
+          const data = err.response.data as {
+            title?: string;
+            message?: string;
+            errors?: Record<string, string[]>;
+          };
+          
+          if (data.title) {
+            mensajeError = data.title;
+          } else if (data.errors) {
             // Si hay errores de validación, mostrarlos de forma legible
-            const errores = error.response.data.errors;
+            const errores = data.errors;
             const mensajesError = [];
             
             for (const campo in errores) {
@@ -408,21 +434,21 @@ const TalonarioDigital: React.FC = () => {
             }
             
             mensajeError = mensajesError.join(', ');
-          } else if (error.response.data.message) {
-            mensajeError = error.response.data.message;
+          } else if (data.message) {
+            mensajeError = data.message;
           } else {
             // Si no podemos extraer un mensaje específico, mostramos el objeto completo
-            mensajeError = JSON.stringify(error.response.data);
+            mensajeError = JSON.stringify(err.response.data);
           }
-        } else if (typeof error.response.data === 'string') {
-          mensajeError = error.response.data;
+        } else if (typeof err.response.data === 'string') {
+          mensajeError = err.response.data;
         }
         
         setError(`Error al vender la boleta: ${mensajeError}`);
-      } else if (error.request) {
+      } else if (err.request) {
         setError('No se recibió respuesta del servidor. Verifica la conexión.');
       } else {
-        setError(`Error al vender la boleta: ${error.message}`);
+        setError(`Error al vender la boleta: ${err.message}`);
       }
     } finally {
       setGuardando(false);
@@ -450,19 +476,20 @@ const TalonarioDigital: React.FC = () => {
         cantidad: cantidadBoletas
       };
       
-      await axios.post('http://localhost:5180/api/SorteosBoletas/asignar-lote', datosAsignacion);
+       await axios.post(`${API_URL}/api/SorteosBoletas/asignar-lote`, datosAsignacion);
       
       setMensaje(`${cantidadBoletas} boletas asignadas con éxito al alumno`);
       cerrarModalAsignacion();
       
       // Actualizar la lista de boletas
       obtenerBoletasPorTalonario(talonarioSeleccionado);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al asignar boletas:', error);
       
       // Mostrar mensaje de error más específico
-      if (error.response) {
-        setError(`Error al asignar las boletas: ${error.response.data || 'Por favor, intente de nuevo.'}`);
+      const err = error as ApiError;
+      if (err.response) {
+        setError(`Error al asignar las boletas: ${err.response.data || 'Por favor, intente de nuevo.'}`);
       } else {
         setError('Error al asignar las boletas. Por favor, intente de nuevo.');
       }
@@ -723,12 +750,12 @@ const TalonarioDigital: React.FC = () => {
                   {boleta.nombreAlumno && boleta.nombreAlumno !== 'Jorge' && (
                     <div className="alumno-boleta">{boleta.nombreAlumno}</div>
                   )}
-                  {boleta.estado === 'Vendida' && (
+                                    {boleta.estado === 'Vendida' && (
                     <div className="comprador-boleta">{boleta.nombreComprador}</div>
                   )}
                 </div>
               ))}
-                        </div>
+            </div>
           </div>
         )}
       </div>
@@ -739,51 +766,42 @@ const TalonarioDigital: React.FC = () => {
     return (
       <Modal show={mostrarModalVenta} onHide={cerrarModalVenta}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            <i className="bi bi-tag me-2"></i>
-            Vender Boleta #{boletaSeleccionada?.numeroBoleta}
-          </Modal.Title>
+          <Modal.Title>Vender Boleta</Modal.Title>
         </Modal.Header>
-        
-        {error && (
-          <Alert variant="danger" className="m-3" dismissible onClose={() => setError('')}>
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            {error}
-          </Alert>
-        )}
-        
         <Modal.Body>
-          <div className="mb-3 p-3 bg-light rounded">
-            <p className="mb-1"><strong>Alumno:</strong> {boletaSeleccionada?.nombreAlumno || 'No asignado'}</p>
-            <p className="mb-1"><strong>Valor:</strong> ${boletaSeleccionada?.valorBoleta?.toLocaleString() || '0'}</p>
-          </div>
+          {error && <Alert variant="danger">{error}</Alert>}
+          
+          {boletaSeleccionada && (
+            <div className="mb-4">
+              <h5>Información de la Boleta</h5>
+              <p><strong>Número:</strong> {boletaSeleccionada.numeroBoleta}</p>
+              <p><strong>Valor:</strong> ${boletaSeleccionada.valorBoleta.toLocaleString()}</p>
+              <p><strong>Asignada a:</strong> {boletaSeleccionada.nombreAlumno}</p>
+            </div>
+          )}
           
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Nombre del Comprador <span className="text-danger">*</span></Form.Label>
+              <Form.Label>Nombre del Comprador</Form.Label>
               <Form.Control 
                 type="text" 
-                placeholder="Ingrese el nombre del comprador"
                 value={datosComprador.nombre}
                 onChange={(e) => setDatosComprador({...datosComprador, nombre: e.target.value})}
+                placeholder="Ingrese el nombre completo"
               />
             </Form.Group>
             
             <Form.Group className="mb-3">
-              <Form.Label>Teléfono del Comprador <span className="text-danger">*</span></Form.Label>
-              <InputGroup>
-                <InputGroup.Text><i className="bi bi-telephone"></i></InputGroup.Text>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Ingrese el teléfono del comprador"
-                  value={datosComprador.telefono}
-                  onChange={(e) => setDatosComprador({...datosComprador, telefono: e.target.value})}
-                />
-              </InputGroup>
+              <Form.Label>Teléfono del Comprador</Form.Label>
+              <Form.Control 
+                type="text" 
+                value={datosComprador.telefono}
+                onChange={(e) => setDatosComprador({...datosComprador, telefono: e.target.value})}
+                placeholder="Ingrese el número de teléfono"
+              />
             </Form.Group>
           </Form>
         </Modal.Body>
-        
         <Modal.Footer>
           <Button variant="secondary" onClick={cerrarModalVenta}>
             Cancelar
@@ -795,14 +813,18 @@ const TalonarioDigital: React.FC = () => {
           >
             {guardando ? (
               <>
-                <Spinner animation="border" size="sm" className="me-2" />
-                Registrando Venta...
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+                Procesando...
               </>
             ) : (
-              <>
-                <i className="bi bi-check-circle me-2"></i>
-                Registrar Venta
-              </>
+              'Confirmar Venta'
             )}
           </Button>
         </Modal.Footer>
@@ -814,50 +836,52 @@ const TalonarioDigital: React.FC = () => {
     return (
       <Modal show={mostrarModalAsignacion} onHide={cerrarModalAsignacion}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            <i className="bi bi-person-plus-fill me-2"></i>
-            Asignar Boletas a Alumno
-          </Modal.Title>
+          <Modal.Title>Confirmar Asignación</Modal.Title>
         </Modal.Header>
-        
-        {error && (
-          <Alert variant="danger" className="m-3" dismissible onClose={() => setError('')}>
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            {error}
-          </Alert>
-        )}
-        
         <Modal.Body>
-          <p>
-            ¿Está seguro que desea asignar <strong>{cantidadBoletas}</strong> boleta(s) al alumno seleccionado?
-          </p>
+          {error && <Alert variant="danger">{error}</Alert>}
           
-          <div className="mb-3 p-3 bg-light rounded">
-            <p className="mb-1"><strong>Alumno:</strong> {alumnosFiltrados.find(a => a.id === alumnoSeleccionado)?.nombre} {alumnosFiltrados.find(a => a.id === alumnoSeleccionado)?.apellido}</p>
-            <p className="mb-1"><strong>ID:</strong> {alumnoSeleccionado}</p>
-            <p className="mb-0"><strong>Cantidad de boletas:</strong> {cantidadBoletas}</p>
-          </div>
+          <p>¿Está seguro que desea asignar <strong>{cantidadBoletas}</strong> boletas al alumno?</p>
+          
+          {alumnoSeleccionado && (
+            <div className="mb-3 p-3 bg-light rounded">
+              <h6>Alumno seleccionado:</h6>
+              <p className="mb-1">
+                <strong>Nombre:</strong> {
+                  alumnos.find(a => a.id === alumnoSeleccionado)?.nombre || ''
+                } {
+                  alumnos.find(a => a.id === alumnoSeleccionado)?.apellido || ''
+                }
+              </p>
+              <p className="mb-0">
+                <strong>ID:</strong> {alumnoSeleccionado}
+              </p>
+            </div>
+          )}
         </Modal.Body>
-        
         <Modal.Footer>
           <Button variant="secondary" onClick={cerrarModalAsignacion}>
             Cancelar
           </Button>
           <Button 
-            variant="primary" 
+            variant="success" 
             onClick={asignarBoletasAlumno}
             disabled={guardando}
           >
             {guardando ? (
               <>
-                <Spinner animation="border" size="sm" className="me-2" />
-                Asignando...
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="me-2"
+                />
+                Procesando...
               </>
             ) : (
-              <>
-                <i className="bi bi-check-circle me-2"></i>
-                Confirmar Asignación
-              </>
+              'Confirmar Asignación'
             )}
           </Button>
         </Modal.Footer>
@@ -865,37 +889,26 @@ const TalonarioDigital: React.FC = () => {
     );
   };
 
-  // Mostrar mensaje de éxito
-  useEffect(() => {
-    if (mensaje) {
-      const timer = setTimeout(() => {
-        setMensaje('');
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [mensaje]);
-
   return (
-    <Container fluid>
+    <Container fluid className="py-4">
       {mensaje && (
         <Alert 
           variant="success" 
-          className="mt-3 position-fixed top-0 start-50 translate-middle-x" 
-          style={{ zIndex: 1050, maxWidth: '90%', width: '500px' }}
           dismissible 
           onClose={() => setMensaje('')}
+          className="mb-4"
         >
-          <i className="bi bi-check-circle-fill me-2"></i>
           {mensaje}
         </Alert>
       )}
       
-      <h1 className="my-4">Talonario Digital</h1>
-      
-      {error && !mostrarModalVenta && !mostrarModalAsignacion && (
-        <Alert variant="danger" className="mb-4" dismissible onClose={() => setError('')}>
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+      {error && vistaActual !== 'boletas' && (
+        <Alert 
+          variant="danger" 
+          dismissible 
+          onClose={() => setError('')}
+          className="mb-4"
+        >
           {error}
         </Alert>
       )}
@@ -907,6 +920,98 @@ const TalonarioDigital: React.FC = () => {
       
       {renderModalVenta()}
       {renderModalAsignacion()}
+      
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .categoria-card, .sorteo-card, .talonario-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #dee2e6;
+          }
+          
+          .categoria-card:hover, .sorteo-card:hover, .talonario-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          }
+          
+          .boletas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+          }
+          
+          .boleta-item {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+          }
+          
+          .boleta-item.asignada {
+            background-color: #e8f4ff;
+            cursor: pointer;
+          }
+          
+          .boleta-item.vendida {
+            background-color: #d4edda;
+          }
+          
+          .boleta-item.disponible {
+            background-color: #f8f9fa;
+          }
+          
+          .numero-boleta {
+            font-weight: bold;
+            font-size: 1.1rem;
+          }
+          
+          .estado-boleta {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+          }
+          
+          .alumno-boleta, .comprador-boleta {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          .search-results {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            margin-top: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+          
+          .search-result-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+          }
+          
+          .search-result-item:hover {
+            background-color: #f8f9fa;
+          }
+          
+          .search-result-item:last-child {
+            border-bottom: none;
+          }
+        `
+      }} />
     </Container>
   );
 };

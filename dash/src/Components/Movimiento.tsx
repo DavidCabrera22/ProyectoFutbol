@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-production.up.railway.app';
 
 interface Movimiento {
   idMovimiento: number;
@@ -91,6 +92,11 @@ const Movimientos: FC = () => {
   const [estadoCuenta, setEstadoCuenta] = useState<EstadoCuenta[]>([]);
   const [movimientosAlumno, setMovimientosAlumno] = useState<Movimiento[]>([]);
   const [loadingEstadoCuenta, setLoadingEstadoCuenta] = useState(false);
+  
+  // Nuevos estados para la búsqueda de alumnos
+  const [terminoBusquedaAlumno, setTerminoBusquedaAlumno] = useState('');
+  const [alumnosBuscados, setAlumnosBuscados] = useState<Alumno[]>([]);
+  const [mostrarResultadosBusqueda, setMostrarResultadosBusqueda] = useState(false);
 
   useEffect(() => {
     const obtenerDatos = async () => {
@@ -104,12 +110,12 @@ const Movimientos: FC = () => {
           respTiposRecaudo, 
           respServicios
         ] = await Promise.all([
-          axios.get('http://localhost:5180/api/Movimientos'),
-          axios.get('http://localhost:5180/api/Alumnos'),
-          axios.get('http://localhost:5180/api/Sedes'),
-          axios.get('http://localhost:5180/api/TiposMovimiento'),
-          axios.get('http://localhost:5180/api/TiposRecaudo'),
-          axios.get('http://localhost:5180/api/Servicios')
+          axios.get(`${API_URL}/api/Movimientos`),
+          axios.get(`${API_URL}/api/Alumnos`),
+          axios.get(`${API_URL}/api/Sedes`),
+          axios.get(`${API_URL}/api/TiposMovimiento`),
+          axios.get(`${API_URL}/api/TiposRecaudo`),
+          axios.get(`${API_URL}/api/Servicios`)
         ]);
         
         console.log('Datos recibidos:', {
@@ -160,6 +166,38 @@ const Movimientos: FC = () => {
     obtenerDatos();
   }, []);
 
+  // Nueva función para buscar alumnos
+  const buscarAlumnos = (termino: string) => {
+    setTerminoBusquedaAlumno(termino);
+    
+    if (!termino.trim()) {
+      setAlumnosBuscados([]);
+      setMostrarResultadosBusqueda(false);
+      return;
+    }
+    
+    const terminoLower = termino.toLowerCase();
+    const resultados = alumnos.filter(alumno => 
+      alumno.nombre.toLowerCase().includes(terminoLower) || 
+      alumno.apellido.toLowerCase().includes(terminoLower) ||
+      alumno.id.toLowerCase().includes(terminoLower)
+    ).slice(0, 5); // Limitamos a 5 resultados para no sobrecargar la UI
+    
+    setAlumnosBuscados(resultados);
+    setMostrarResultadosBusqueda(true);
+  };
+
+  // Nueva función para seleccionar un alumno de los resultados
+  const seleccionarAlumno = (alumno: Alumno) => {
+    setMovimientoEditar(prev => ({
+      ...prev,
+      idAlumno: alumno.id
+    }));
+    setTerminoBusquedaAlumno(`${alumno.nombre} ${alumno.apellido}`);
+    setAlumnosBuscados([]);
+    setMostrarResultadosBusqueda(false);
+  };
+
   const abrirModalNuevo = () => {
     setMovimientoEditar({
       fecha: new Date().toISOString().split('T')[0],
@@ -173,14 +211,17 @@ const Movimientos: FC = () => {
       caja: '',
       soporte: ''
     });
+    setTerminoBusquedaAlumno('');
     setEsNuevoMovimiento(true);
   };
 
   const abrirModalEditar = (movimiento: Movimiento) => {
+    const alumno = alumnos.find(a => a.id === movimiento.idAlumno);
     setMovimientoEditar({
       ...movimiento,
       fecha: new Date(movimiento.fecha).toISOString().split('T')[0]
     });
+    setTerminoBusquedaAlumno(alumno ? `${alumno.nombre} ${alumno.apellido}` : '');
     setEsNuevoMovimiento(false);
     setMostrarModalEdicion(true);
   };
@@ -209,9 +250,9 @@ const Movimientos: FC = () => {
     try {
       setGuardando(true);
       if (esNuevoMovimiento) {
-        await axios.post('http://localhost:5180/api/Movimientos', movimientoEditar);
+        await axios.post(`${API_URL}/api/Movimientos`, movimientoEditar);
       } else {
-        await axios.put(`http://localhost:5180/api/Movimientos/${movimientoEditar.idMovimiento}`, movimientoEditar);
+        await axios.put(`${API_URL}/api/Movimientos/${movimientoEditar.idMovimiento}`, movimientoEditar);
       }
       
       // Recargar datos
@@ -227,7 +268,7 @@ const Movimientos: FC = () => {
   const eliminarMovimiento = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este movimiento?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/Movimientos/${id}`);
+        await axios.delete(`${API_URL}/api/Movimientos/${id}`);
         // Recargar datos
         window.location.reload();
       } catch (error) {
@@ -243,15 +284,15 @@ const Movimientos: FC = () => {
       setEstadoCuentaVisible(true);
       
       // Obtener datos del alumno
-      const alumnoResp = await axios.get(`http://localhost:5180/api/Alumnos/${idAlumno}`);
+      const alumnoResp = await axios.get(`${API_URL}/api/Alumnos/${idAlumno}`);
       setAlumnoSeleccionado(alumnoResp.data);
       
       // Obtener estado de cuenta del alumno
-      const estadoCuentaResp = await axios.get(`http://localhost:5180/api/Movimientos/estadoCuenta/${idAlumno}`);
+      const estadoCuentaResp = await axios.get(`${API_URL}/api/Movimientos/estadoCuenta/${idAlumno}`);
       setEstadoCuenta(estadoCuentaResp.data);
       
       // Obtener movimientos del alumno
-      const movimientosResp = await axios.get(`http://localhost:5180/api/Movimientos/alumno/${idAlumno}`);
+      const movimientosResp = await axios.get(`${API_URL}/api/Movimientos/alumno/${idAlumno}`);
       const movimientosOrdenados = movimientosResp.data.sort((a: Movimiento, b: Movimiento) => 
         new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
       );
@@ -318,18 +359,42 @@ const Movimientos: FC = () => {
               <div className="col-md-6">
                 <Form.Group className="mb-3">
                   <Form.Label>Alumno</Form.Label>
-                  <Form.Select
-                    name="idAlumno"
-                    value={movimientoEditar?.idAlumno || ''}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Seleccione un alumno</option>
-                    {alumnos.map(alumno => (
-                      <option key={alumno.id} value={alumno.id}>
-                        {alumno.nombre} {alumno.apellido}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <div className="position-relative">
+                    <Form.Control
+                      type="text"
+                      placeholder="Buscar alumno por nombre o ID..."
+                      value={terminoBusquedaAlumno}
+                      onChange={(e) => buscarAlumnos(e.target.value)}
+                      onFocus={() => {
+                        if (alumnosBuscados.length > 0) {
+                          setMostrarResultadosBusqueda(true);
+                        }
+                      }}
+                      onBlur={() => {
+                        // Pequeño retraso para permitir que el clic en un resultado funcione
+                        setTimeout(() => setMostrarResultadosBusqueda(false), 200);
+                      }}
+                    />
+                    
+                    {mostrarResultadosBusqueda && alumnosBuscados.length > 0 && (
+                      <div className="position-absolute w-100 mt-1 bg-white border rounded shadow-sm" style={{ zIndex: 1050 }}>
+                        {alumnosBuscados.map(alumno => (
+                          <div 
+                            key={alumno.id}
+                            className="p-2 border-bottom"
+                            style={{ cursor: 'pointer' }}
+                            onMouseDown={() => seleccionarAlumno(alumno)}
+                            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f8f9fa')}
+                            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'white')}
+                          >
+                            <strong>{alumno.nombre} {alumno.apellido}</strong>
+                            <br />
+                            <small className="text-muted">ID: {alumno.id}</small>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </Form.Group>
               </div>
               <div className="col-md-6">
@@ -647,171 +712,160 @@ const Movimientos: FC = () => {
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setMostrarModal(false)}>
             Cerrar
-            </Button>
+          </Button>
         </Modal.Footer>
       </Modal>
 
       {/* Modal para editar movimiento */}
-      <Modal show={mostrarModalEdicion} onHide={() => setMostrarModalEdicion(false)} size="lg">
+      <Modal show={mostrarModalEdicion} onHide={() => setMostrarModalEdicion(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Editar Movimiento</Modal.Title>
+          <Modal.Title>{esNuevoMovimiento ? 'Nuevo Movimiento' : 'Editar Movimiento'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Fecha</Form.Label>
-                  <Form.Control
-                    type="date"
-                    name="fecha"
-                    value={movimientoEditar?.fecha || new Date().toISOString().split('T')[0]}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Hora</Form.Label>
-                  <Form.Control
-                    type="time"
-                    name="hora"
-                    value={movimientoEditar?.hora || new Date().toTimeString().split(' ')[0].substring(0, 5)}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Alumno</Form.Label>
-                  <Form.Select
-                    name="idAlumno"
-                    value={movimientoEditar?.idAlumno || ''}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Seleccione un alumno</option>
-                    {alumnos.map(alumno => (
-                      <option key={alumno.id} value={alumno.id}>
-                        {alumno.nombre} {alumno.apellido}
-                      </option>
+            <Form.Group className="mb-3">
+              <Form.Label>Fecha</Form.Label>
+              <Form.Control
+                type="date"
+                name="fecha"
+                value={movimientoEditar?.fecha || ''}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Hora</Form.Label>
+              <Form.Control
+                type="time"
+                name="hora"
+                value={movimientoEditar?.hora || ''}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Alumno</Form.Label>
+              <div className="position-relative">
+                <Form.Control
+                  type="text"
+                  placeholder="Buscar alumno por nombre o ID..."
+                  value={terminoBusquedaAlumno}
+                  onChange={(e) => buscarAlumnos(e.target.value)}
+                  onFocus={() => {
+                    if (alumnosBuscados.length > 0) {
+                      setMostrarResultadosBusqueda(true);
+                    }
+                  }}
+                  onBlur={() => {
+                    setTimeout(() => setMostrarResultadosBusqueda(false), 200);
+                  }}
+                />
+                
+                {mostrarResultadosBusqueda && alumnosBuscados.length > 0 && (
+                  <div className="position-absolute w-100 mt-1 bg-white border rounded shadow-sm" style={{ zIndex: 1050 }}>
+                    {alumnosBuscados.map(alumno => (
+                      <div 
+                        key={alumno.id}
+                        className="p-2 border-bottom"
+                        style={{ cursor: 'pointer' }}
+                        onMouseDown={() => seleccionarAlumno(alumno)}
+                        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f8f9fa')}
+                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'white')}
+                      >
+                        <strong>{alumno.nombre} {alumno.apellido}</strong>
+                        <br />
+                        <small className="text-muted">ID: {alumno.id}</small>
+                      </div>
                     ))}
-                  </Form.Select>
-                </Form.Group>
+                  </div>
+                )}
               </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Sede</Form.Label>
-                  <Form.Select
-                    name="idSede"
-                    value={movimientoEditar?.idSede || 0}
-                    onChange={handleInputChange}
-                  >
-                    <option value={0}>Seleccione una sede</option>
-                    {sedes.map(sede => (
-                      <option key={sede.idSede} value={sede.idSede}>
-                        {sede.nombreSede}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Tipo de Movimiento</Form.Label>
-                  <Form.Select
-                    name="idTipo"
-                    value={movimientoEditar?.idTipo || 0}
-                    onChange={handleInputChange}
-                  >
-                    <option value={0}>Seleccione un tipo</option>
-                    {tiposMovimiento.map(tipo => (
-                      <option key={tipo.idTipo} value={tipo.idTipo}>
-                        {tipo.nombre}
-                        </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Servicio</Form.Label>
-                  <Form.Select
-                    name="idServicio"
-                    value={movimientoEditar?.idServicio || 0}
-                    onChange={handleInputChange}
-                  >
-                    <option value={0}>Seleccione un servicio</option>
-                    {servicios.map(servicio => (
-                      <option key={servicio.idServicio} value={servicio.idServicio}>
-                        {servicio.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Tipo de Recaudo</Form.Label>
-                  <Form.Select
-                    name="idTipoRecaudo"
-                    value={movimientoEditar?.idTipoRecaudo || 0}
-                    onChange={handleInputChange}
-                  >
-                    <option value={0}>Seleccione un tipo de recaudo</option>
-                    {tiposRecaudo.map(tipo => (
-                      <option key={tipo.idTipoRecaudo} value={tipo.idTipoRecaudo}>
-                        {tipo.nombre}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Valor</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="valor"
-                    value={movimientoEditar?.valor || 0}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Caja</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="caja"
-                    value={movimientoEditar?.caja || ''}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </div>
-              <div className="col-md-6">
-                <Form.Group className="mb-3">
-                  <Form.Label>Soporte</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="soporte"
-                    value={movimientoEditar?.soporte || ''}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </div>
-            </div>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Sede</Form.Label>
+              <Form.Select
+                name="idSede"
+                value={movimientoEditar?.idSede || 0}
+                onChange={handleInputChange}
+              >
+                <option value={0}>Seleccione una sede</option>
+                {sedes.map(sede => (
+                  <option key={sede.idSede} value={sede.idSede}>
+                    {sede.nombreSede}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Tipo de Movimiento</Form.Label>
+              <Form.Select
+                name="idTipo"
+                value={movimientoEditar?.idTipo || 0}
+                onChange={handleInputChange}
+              >
+                <option value={0}>Seleccione un tipo</option>
+                {tiposMovimiento.map(tipo => (
+                  <option key={tipo.idTipo} value={tipo.idTipo}>
+                    {tipo.nombre}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Servicio</Form.Label>
+              <Form.Select
+                name="idServicio"
+                value={movimientoEditar?.idServicio || 0}
+                onChange={handleInputChange}
+              >
+                <option value={0}>Seleccione un servicio</option>
+                {servicios.map(servicio => (
+                  <option key={servicio.idServicio} value={servicio.idServicio}>
+                    {servicio.nombre}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Tipo de Recaudo</Form.Label>
+              <Form.Select
+                name="idTipoRecaudo"
+                value={movimientoEditar?.idTipoRecaudo || 0}
+                onChange={handleInputChange}
+              >
+                <option value={0}>Seleccione un tipo de recaudo</option>
+                {tiposRecaudo.map(tipo => (
+                  <option key={tipo.idTipoRecaudo} value={tipo.idTipoRecaudo}>
+                    {tipo.nombre}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Valor</Form.Label>
+              <Form.Control
+                type="number"
+                name="valor"
+                value={movimientoEditar?.valor || 0}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Caja</Form.Label>
+              <Form.Control
+                type="text"
+                name="caja"
+                value={movimientoEditar?.caja || ''}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Soporte</Form.Label>
+              <Form.Control
+                type="text"
+                name="soporte"
+                value={movimientoEditar?.soporte || ''}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -819,7 +873,14 @@ const Movimientos: FC = () => {
             Cancelar
           </Button>
           <Button variant="primary" onClick={guardarMovimiento} disabled={guardando}>
-            {guardando ? 'Guardando...' : 'Guardar Cambios'}
+            {guardando ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Guardando...
+              </>
+            ) : (
+              'Guardar'
+            )}
           </Button>
         </Modal.Footer>
       </Modal>

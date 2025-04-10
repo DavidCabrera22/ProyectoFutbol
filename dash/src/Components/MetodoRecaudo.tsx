@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-
+const API_URL = import.meta.env.VITE_API_URL;
 interface MetodoRecaudo {
   idMetodoRecaudo: number;
   nombre: string;
@@ -21,7 +21,7 @@ const MetodosRecaudo: React.FC = () => {
   const obtenerMetodosRecaudo = async () => {
     try {
       setLoading(true);
-      const respuesta = await axios.get('http://localhost:5180/api/MetodosRecaudo');
+      const respuesta = await axios.get(`${API_URL}/api/MetodosRecaudo`);
       console.log('Datos de métodos de recaudo recibidos:', respuesta.data);
       setMetodosRecaudo(respuesta.data);
     } catch (error) {
@@ -58,10 +58,10 @@ const MetodosRecaudo: React.FC = () => {
       }
 
       if (esNuevoMetodo) {
-        await axios.post('http://localhost:5180/api/MetodosRecaudo', metodoEditar);
+        await axios.post(`${API_URL}/api/MetodosRecaudo`, metodoEditar);
         alert('Método de recaudo creado con éxito');
       } else {
-        await axios.put(`http://localhost:5180/api/MetodosRecaudo/${metodoEditar.idMetodoRecaudo}`, metodoEditar);
+        await axios.put(`${API_URL}/api/MetodosRecaudo/${metodoEditar.idMetodoRecaudo}`, metodoEditar);
         alert('Método de recaudo actualizado con éxito');
       }
 
@@ -76,7 +76,7 @@ const MetodosRecaudo: React.FC = () => {
   const eliminarMetodo = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este método de recaudo?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/MetodosRecaudo/${id}`);
+        await axios.delete(`${API_URL}/api/MetodosRecaudo/${id}`);
         alert('Método de recaudo eliminado con éxito');
         obtenerMetodosRecaudo();
       } catch (error) {

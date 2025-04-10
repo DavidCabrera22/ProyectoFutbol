@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using TopFutbolAPI.Data;
 using TopFutbolAPI.Models;
 using TopFutbolAPI.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace TopFutbolAPI.Controllers
 {
@@ -33,7 +37,9 @@ namespace TopFutbolAPI.Controllers
                     Telefono = a.Telefono,
                     NombreSede = a.Sede.NombreSede,
                     NombreCategoria = a.Categoria.Nombre,
-                    NombreFormador = a.Formador.Nombre
+                    NombreFormador = a.Formador.Nombre,
+                    Activo = a.Activo,
+                    RecomendadoPor = a.RecomendadoPor
                 })
                 .ToListAsync();
         }
@@ -58,7 +64,9 @@ namespace TopFutbolAPI.Controllers
                     Telefono = a.Telefono,
                     NombreSede = a.Sede.NombreSede,
                     NombreCategoria = a.Categoria.Nombre,
-                    NombreFormador = a.Formador.Nombre
+                    NombreFormador = a.Formador.Nombre,
+                    Activo = a.Activo,
+                    RecomendadoPor = a.RecomendadoPor
                 })
                 .ToListAsync();
         }
@@ -80,7 +88,9 @@ namespace TopFutbolAPI.Controllers
                     Telefono = a.Telefono,
                     NombreSede = a.Sede.NombreSede,
                     NombreCategoria = a.Categoria.Nombre,
-                    NombreFormador = a.Formador.Nombre
+                    NombreFormador = a.Formador.Nombre,
+                    Activo = a.Activo,
+                    RecomendadoPor = a.RecomendadoPor
                 })
                 .FirstOrDefaultAsync();
 
@@ -110,7 +120,9 @@ namespace TopFutbolAPI.Controllers
                 Telefono = alumnoDTO.Telefono,
                 IdSede = alumnoDTO.IdSede,
                 IdCategoria = alumnoDTO.IdCategoria,
-                IdFormador = alumnoDTO.IdFormador
+                IdFormador = alumnoDTO.IdFormador,
+                Activo = alumnoDTO.Activo,
+                RecomendadoPor = alumnoDTO.RecomendadoPor
             };
 
             _context.Alumnos.Add(alumno);
@@ -130,7 +142,9 @@ namespace TopFutbolAPI.Controllers
                     Telefono = a.Telefono,
                     NombreSede = a.Sede.NombreSede,
                     NombreCategoria = a.Categoria.Nombre,
-                    NombreFormador = a.Formador.Nombre
+                    NombreFormador = a.Formador.Nombre,
+                    Activo = a.Activo,
+                    RecomendadoPor = a.RecomendadoPor
                 })
                 .FirstOrDefaultAsync();
 
@@ -158,6 +172,8 @@ namespace TopFutbolAPI.Controllers
             alumno.IdSede = alumnoDTO.IdSede;
             alumno.IdCategoria = alumnoDTO.IdCategoria;
             alumno.IdFormador = alumnoDTO.IdFormador;
+            alumno.Activo = alumnoDTO.Activo;
+            alumno.RecomendadoPor = alumnoDTO.RecomendadoPor;
 
             try
             {
@@ -177,7 +193,9 @@ namespace TopFutbolAPI.Controllers
                         Telefono = a.Telefono,
                         NombreSede = a.Sede.NombreSede,
                         NombreCategoria = a.Categoria.Nombre,
-                        NombreFormador = a.Formador.Nombre
+                        NombreFormador = a.Formador.Nombre,
+                        Activo = a.Activo,
+                        RecomendadoPor = a.RecomendadoPor
                     })
                     .FirstOrDefaultAsync();
 
@@ -206,6 +224,83 @@ namespace TopFutbolAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        // PATCH: api/Alumnos/{id}/estado
+        [HttpPatch("{id}/estado")]
+        public async Task<IActionResult> CambiarEstadoAlumno(string id, [FromBody] CambiarEstadoAlumnoDto cambiarEstadoDto)
+        {
+            var alumno = await _context.Alumnos.FindAsync(id);
+            if (alumno == null)
+            {
+                return NotFound($"No se encontró un alumno con ID {id}");
+            }
+
+            // Guardar el estado anterior para comparar
+            bool estadoAnterior = alumno.Activo;
+
+            // Actualizar el estado
+            alumno.Activo = cambiarEstadoDto.Activo;
+            
+            // Si se proporciona un motivo, guardarlo temporalmente
+            // (el trigger no puede acceder a este campo, pero lo usamos para el registro)
+            alumno.MotivoInactividad = cambiarEstadoDto.Motivo ?? 
+                (cambiarEstadoDto.Activo ? "Reactivación de alumno" : "Inactivación de alumno");
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                
+                // Devolver información sobre el cambio realizado
+                return Ok(new { 
+                    mensaje = cambiarEstadoDto.Activo ? "Alumno reactivado correctamente" : "Alumno inactivado correctamente",
+                    estadoAnterior,
+                    estadoNuevo = alumno.Activo
+                });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AlumnoExists(id))
+                {
+                    return NotFound($"No se encontró un alumno con ID {id}");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno al cambiar el estado del alumno: {ex.Message}");
+            }
+        }
+
+        // GET: api/Alumnos/{id}/historial-inactivaciones
+        [HttpGet("{id}/historial-inactivaciones")]
+        public async Task<ActionResult<IEnumerable<AlumnoInactivacionHistorialDto>>> GetHistorialInactivaciones(string id)
+        {
+            var alumno = await _context.Alumnos.FindAsync(id);
+            if (alumno == null)
+            {
+                return NotFound($"No se encontró un alumno con ID {id}");
+            }
+
+            var historial = await _context.AlumnoInactivacionesHistorial
+                .Where(h => h.IdAlumno == id)
+                .OrderByDescending(h => h.FechaInactivacion)
+                .ToListAsync();
+
+            return historial.Select(h => new AlumnoInactivacionHistorialDto
+            {
+                Id = h.Id,
+                FechaInactivacion = h.FechaInactivacion,
+                FechaReactivacion = h.FechaReactivacion,
+                EstadoAnterior = h.EstadoAnterior,
+                EstadoNuevo = h.EstadoNuevo,
+                Motivo = h.Motivo,
+                UsuarioModificacion = h.UsuarioModificacion,
+                FechaRegistro = h.FechaRegistro
+            }).ToList();
         }
 
         private bool AlumnoExists(string id)

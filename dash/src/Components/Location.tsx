@@ -1,6 +1,8 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 interface Location {
   idSede: number;
@@ -26,7 +28,7 @@ const Locations: FC = () => {
   // Función para obtener las sedes desde la API
   const obtenerSedes = async () => {
     try {
-      const response = await axios.get('http://localhost:5180/api/Sedes');
+      const response = await axios.get(`${API_URL}/api/Sedes`);
       setSedes(response.data);
       setSedesFiltradas(response.data);
     } catch (error) {
@@ -105,7 +107,7 @@ const Locations: FC = () => {
   const eliminarSede = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta sede?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/Sedes/${id}`);
+        await axios.delete(`${API_URL}/api/Sedes/${id}`);
         obtenerSedes();
       } catch (error) {
         console.error('Error al eliminar sede:', error);
@@ -129,10 +131,10 @@ const Locations: FC = () => {
 
     try {
       if (esNuevaSede) {
-        await axios.post('http://localhost:5180/api/Sedes', sedeEditar);
+        await axios.post(`${API_URL}/api/Sedes`, sedeEditar);
         alert('Sede creada con éxito');
       } else {
-        await axios.put(`http://localhost:5180/api/Sedes/${sedeEditar.idSede}`, sedeEditar);
+        await axios.put(`${API_URL}/api/Sedes/${sedeEditar.idSede}`, sedeEditar);
         alert('Sede actualizada con éxito');
       }
       

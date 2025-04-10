@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form, Card } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Saldo {
   idSaldo: number;
@@ -68,12 +69,12 @@ const Saldos: FC = () => {
         setLoading(true);
         
         // Primero obtenemos las sedes
-        const respSedes = await axios.get('http://localhost:5180/api/Sedes');
+        const respSedes = await axios.get(`${API_URL}/api/Sedes`);
         console.log('Datos de sedes recibidos:', respSedes.data);
         setSedes(respSedes.data);
         
         // Luego obtenemos los saldos
-        const respSaldos = await axios.get('http://localhost:5180/api/Saldos');
+        const respSaldos = await axios.get(`${API_URL}/api/Saldos`);
         console.log('Datos de saldos recibidos:', respSaldos.data);
         
         // Combinar datos para mostrar nombres de sedes
@@ -88,7 +89,7 @@ const Saldos: FC = () => {
         setSaldos(saldosConSedes);
         
         // Obtenemos los servicios de la escuela de fútbol
-        const respServicios = await axios.get('http://localhost:5180/api/Servicios');
+        const respServicios =  await axios.get(`${API_URL}/api/Servicios`);
         setServicios(respServicios.data);
       } catch (error) {
         console.error('Error al obtener datos:', error);
@@ -107,7 +108,7 @@ const Saldos: FC = () => {
     
     try {
       setLoadingAlumno(true);
-      const respuesta = await axios.get(`http://localhost:5180/api/Alumnos/buscar?termino=${busquedaAlumno}`);
+      const respuesta = await axios.get(`${API_URL}/api/Alumnos/buscar?termino=${busquedaAlumno}`);
       setAlumnosEncontrados(respuesta.data);
     } catch (error) {
       console.error('Error al buscar alumno:', error);
@@ -126,10 +127,10 @@ const Saldos: FC = () => {
       setLoadingAlumno(true);
       
       // Obtener movimientos del alumno
-      const respMovimientos = await axios.get(`http://localhost:5180/api/Movimientos/alumno/${alumno.id}`);
+      const respMovimientos =  await axios.get(`${API_URL}/api/Movimientos/alumno/${alumno.id}`);
       
       // Obtener tipos de movimiento para enriquecer los datos
-      const respTiposMovimiento = await axios.get('http://localhost:5180/api/TiposMovimiento');
+      const respTiposMovimiento = await axios.get(`${API_URL}/api/TiposMovimiento`);
       
       // Combinar datos
            // Combinar datos
@@ -215,9 +216,9 @@ const Saldos: FC = () => {
     
     try {
       if (esNuevoSaldo) {
-        await axios.post('http://localhost:5180/api/Saldos', saldoEditar);
+        await axios.post(`${API_URL}/api/Saldos`, saldoEditar);
       } else {
-        await axios.put(`http://localhost:5180/api/Saldos/${saldoEditar.idSaldo}`, saldoEditar);
+        await axios.put(`${API_URL}/api/Saldos/${saldoEditar.idSaldo}`, saldoEditar);
       }
       
       // Recargar datos
@@ -231,7 +232,7 @@ const Saldos: FC = () => {
   const eliminarSaldo = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este saldo?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/Saldos/${id}`);
+        await axios.delete(`${API_URL}/api/Saldos/${id}`);
         // Recargar datos
         window.location.reload();
       } catch (error) {

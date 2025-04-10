@@ -2,6 +2,8 @@ import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { ProgressBar } from 'react-bootstrap';
 import { useAuth } from './AuthContext';
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 interface EstadisticasGenerales {
   totalAlumnos: number;
@@ -41,19 +43,19 @@ const Dashboard: FC = () => {
         setLoading(true);
         
         // Obtener datos de alumnos
-        const respAlumnos = await axios.get('http://localhost:5180/api/Alumnos');
+        const respAlumnos =await axios.get(`${API_URL}/api/Alumnos`);
         const alumnos = respAlumnos.data;
         
         // Obtener datos de formadores
-        const respFormadores = await axios.get('http://localhost:5180/api/Formadores');
+        const respFormadores = await axios.get(`${API_URL}/api/Formadores`);
         const formadores = respFormadores.data;
         
         // Obtener datos de sedes
-        const respSedes = await axios.get('http://localhost:5180/api/Sedes');
+        const respSedes = await axios.get(`${API_URL}/api/Sedes`);
         const sedes = respSedes.data;
         
         // Obtener datos de servicios
-        const respServicios = await axios.get('http://localhost:5180/api/Servicios');
+        const respServicios =  await axios.get(`${API_URL}/api/Servicios`);
         const servicios = respServicios.data;
 
         // Calcular estadísticas generales

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-
+const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-production.up.railway.app';
 interface User {
   idUsuario: number;
   nombreUsuario: string;
@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('http://localhost:5180/api/Auth/login', {
+      const response = await axios.post(`${API_URL}/api/Auth/login`, {
         email,
         password
       });
@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Nueva función para registrar usuarios
   const register = async (nombreUsuario: string, email: string, password: string) => {
     try {
-      const response = await axios.post('http://localhost:5180/api/Auth/registro', {
+      const response = await axios.post(`${API_URL}/api/Auth/registro`, {
         nombreUsuario,
         email,
         password

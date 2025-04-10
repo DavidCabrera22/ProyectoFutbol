@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface Category {
   idCategoria: number;
@@ -25,7 +26,7 @@ const Categories: FC = () => {
   // Función para obtener las categorías desde la API
   const obtenerCategorias = async () => {
     try {
-      const response = await axios.get('http://localhost:5180/api/Categorias');
+      const response = await axios.get(`${API_URL}/api/Categorias`);
       setCategorias(response.data);
       setCategoriasFiltradas(response.data);
     } catch (error) {
@@ -96,7 +97,7 @@ const Categories: FC = () => {
   const eliminarCategoria = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/Categorias/${id}`);
+        await axios.delete(`${API_URL}/api/Categorias/${id}`);
         obtenerCategorias();
       } catch (error) {
         console.error('Error al eliminar categoría:', error);
@@ -120,10 +121,10 @@ const Categories: FC = () => {
 
     try {
       if (esNuevaCategoria) {
-        await axios.post('http://localhost:5180/api/Categorias', categoriaEditar);
+        await axios.post(`${API_URL}/api/Categorias`, categoriaEditar);
         alert('Categoría creada con éxito');
       } else {
-        await axios.put(`http://localhost:5180/api/Categorias/${categoriaEditar.idCategoria}`, categoriaEditar);
+        await axios.put(`${API_URL}/api/Categorias/${categoriaEditar.idCategoria}`, categoriaEditar);
         alert('Categoría actualizada con éxito');
       }
       

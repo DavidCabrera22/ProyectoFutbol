@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface TipoMovimiento {
   idTipo: number;
@@ -19,7 +20,7 @@ const TiposMovimiento: FC = () => {
     const obtenerDatos = async () => {
       try {
         setLoading(true);
-        const respTipos = await axios.get('http://localhost:5180/api/TiposMovimiento');
+        const respTipos = await axios.get(`${API_URL}/api/TiposMovimiento`);
         
         setTiposMovimiento(respTipos.data);
       } catch (error) {
@@ -70,9 +71,9 @@ const TiposMovimiento: FC = () => {
     
     try {
       if (esNuevoTipo) {
-        await axios.post('http://localhost:5180/api/TiposMovimiento', tipoEditar);
+        await axios.post(`${API_URL}/api/TiposMovimiento`, tipoEditar);
       } else {
-        await axios.put(`http://localhost:5180/api/TiposMovimiento/${tipoEditar.idTipo}`, tipoEditar);
+        await axios.put(`${API_URL}/api/TiposMovimiento/${tipoEditar.idTipo}`, tipoEditar);
       }
       
       // Recargar datos
@@ -86,7 +87,7 @@ const TiposMovimiento: FC = () => {
   const eliminarTipo = async (id: number) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este tipo de movimiento?')) {
       try {
-        await axios.delete(`http://localhost:5180/api/TiposMovimiento/${id}`);
+        await axios.delete(`${API_URL}/api/TiposMovimiento/${id}`);
         // Recargar datos
         window.location.reload();
       } catch (error) {
