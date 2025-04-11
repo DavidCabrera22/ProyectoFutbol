@@ -173,3 +173,9 @@ C:\Users\W11\HOLA\TopFutbolAPI\obj\Release\net8.0\refint\TopFutbolAPI.dll
 C:\Users\W11\HOLA\TopFutbolAPI\obj\Release\net8.0\TopFutbolAPI.pdb
 C:\Users\W11\HOLA\TopFutbolAPI\obj\Release\net8.0\TopFutbolAPI.genruntimeconfig.cache
 C:\Users\W11\HOLA\TopFutbolAPI\obj\Release\net8.0\ref\TopFutbolAPI.dll
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\web.config
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\appsettings.Development.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\appsettings.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.deps.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.runtimeconfig.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.staticwebassets.endpoints.json

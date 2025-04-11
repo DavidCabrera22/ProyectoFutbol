@@ -1,6 +1,12 @@
 C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.exe
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\publish\web.config
 C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\appsettings.Development.json
 C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\appsettings.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\publish\appsettings.Development.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\publish\appsettings.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\publish\TopFutbolAPI.deps.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\publish\TopFutbolAPI.runtimeconfig.json
+C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\publish\TopFutbolAPI.staticwebassets.endpoints.json
 C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.dll
 C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.runtimeconfig.json
 C:\Users\W11\HOLA\TopFutbolAPI\bin\Release\net8.0\publish\TopFutbolAPI.pdb

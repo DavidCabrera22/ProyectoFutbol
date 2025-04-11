@@ -5,14 +5,15 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["TopFutbolAPI/TopFutbolAPI.csproj", "TopFutbolAPI/"]
-RUN dotnet restore "TopFutbolAPI/TopFutbolAPI.csproj"
+# Copiamos directamente el archivo .csproj desde la raíz
+COPY ["TopFutbolAPI.csproj", "./"]
+RUN dotnet restore "TopFutbolAPI.csproj"
 COPY . .
-WORKDIR "/src/TopFutbolAPI"
-RUN dotnet build "TopFutbolAPI.csproj" -c Release -o /app/build
+WORKDIR "/src"
+RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "TopFutbolAPI.csproj" -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

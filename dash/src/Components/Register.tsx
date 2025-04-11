@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './login.css'; // Reutilizamos el mismo CSS del login
+import axios from 'axios';
 
 const Register: React.FC = () => {
   const [nombreUsuario, setNombreUsuario] = useState('');
@@ -11,9 +12,17 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [apiUrl, setApiUrl] = useState('');
   
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Obtener y mostrar la URL de la API para depuración
+    const url = import.meta.env.VITE_API_URL;
+    setApiUrl(url);
+    console.log('URL de API configurada en Register:', url);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,24 +38,42 @@ const Register: React.FC = () => {
       return;
     }
     
-      // ... existing code ...
-  try {
-    setError('');
-    setLoading(true);
-    await register(nombreUsuario, email, password);
-    navigate('/dashboard');
-  } catch (err: unknown) {
-    console.error('Error durante el registro:', err);
-    if (err && typeof err === 'object' && 'response' in err && 
-        err.response && typeof err.response === 'object' && 'data' in err.response) {
-      setError(err.response.data as string);
-    } else {
-      setError('Error al registrar usuario. Por favor, intenta de nuevo.');
+    try {
+      setError('');
+      setLoading(true);
+      console.log('Intentando registro con datos:', { nombreUsuario, email });
+      console.log('URL de API utilizada:', apiUrl);
+      console.log('URL completa:', `${apiUrl}/api/Auth/registro`);
+      
+      await register(nombreUsuario, email, password);
+      console.log('Registro exitoso, redirigiendo a dashboard');
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      console.error('Error detallado durante el registro:', err);
+      
+      // Mostrar información detallada del error para depuración
+      if (axios.isAxiosError(err)) {
+        console.error('Detalles del error Axios:', {
+          status: err.response?.status,
+          statusText: err.response?.statusText,
+          data: err.response?.data,
+          headers: err.response?.headers,
+          config: err.config
+        });
+        
+        if (err.response) {
+          setError(`Error ${err.response.status}: ${err.response.data || err.message}`);
+        } else if (err.request) {
+          setError('No se recibió respuesta del servidor. Verifica tu conexión.');
+        } else {
+          setError(`Error de configuración: ${err.message}`);
+        }
+      } else {
+        setError('Error al registrar usuario. Por favor, intenta de nuevo.');
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-  // ... existing code ...
   };
 
   return (

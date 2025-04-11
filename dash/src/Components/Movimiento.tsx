@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
-const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-production.up.railway.app';
+const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-api-production.up.railway.app';
 
 interface Movimiento {
   idMovimiento: number;

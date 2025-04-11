@@ -24,6 +24,7 @@ import { useAuth } from './Components/AuthContext';
 import { Button, Container } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Components/global.css';
+import ApiTest from './Components/ApiTest';
 
 // Componente para proteger rutas
 const ProtectedRoute: React.FC<{ 
@@ -217,6 +218,9 @@ function App() {
       } />
       
       <Route path="/unauthorized" element={<Unauthorized />} />
+      
+      {/* Añadir la ruta para ApiTest */}
+      <Route path="/api-test" element={<ApiTest />} />
       
       <Route path="/dashboard" element={
         <ProtectedRoute>

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-production.up.railway.app';
+const API_URL = import.meta.env.VITE_API_URL || 'https://topfutbol-api-production.up.railway.app';
 interface User {
   idUsuario: number;
   nombreUsuario: string;
@@ -33,49 +33,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await axios.post(`${API_URL}/api/Auth/login`, {
-        email,
-        password
-      });
-      
-      const userData = response.data;
-      setUser(userData);
-      
-      // Guardar el usuario y token en localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
-      
-      // Configurar el token para futuras solicitudes
-      axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
-    } catch (error) {
-      console.error('Error de inicio de sesión:', error);
-      throw error;
-    }
-  };
+  // ... código existente ...
 
-  // Nueva función para registrar usuarios
-  const register = async (nombreUsuario: string, email: string, password: string) => {
-    try {
-      const response = await axios.post(`${API_URL}/api/Auth/registro`, {
-        nombreUsuario,
-        email,
-        password
+const login = async (email: string, password: string) => {
+  try {
+    console.log('URL de API utilizada:', import.meta.env.VITE_API_URL);
+    console.log('Intentando login con URL:', `${import.meta.env.VITE_API_URL}/api/Auth/login`);
+    
+    const response = await axios.post(`${API_URL}/api/Auth/login`, { email, password });
+    
+    console.log('Respuesta de login:', response);
+    
+    // ... resto del código de login ...
+  } catch (error) {
+    console.error('Error detallado de login:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Detalles de error Axios:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
       });
-      
-      const userData = response.data;
-      setUser(userData);
-      
-      // Guardar el usuario y token en localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
-      
-      // Configurar el token para futuras solicitudes
-      axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
-    } catch (error) {
-      console.error('Error de registro:', error);
-      throw error;
     }
-  };
+    throw error;
+  }
+};
+
+const register = async (username: string, email: string, password: string) => {
+  try {
+    console.log('URL de API utilizada para registro:', import.meta.env.VITE_API_URL);
+    console.log('Intentando registro con URL:', `${import.meta.env.VITE_API_URL}/api/Auth/registro`);
+    
+    const response = await axios.post(`${API_URL}/api/Auth/registro`, { 
+      username, 
+      email, 
+      password 
+    });
+    
+    console.log('Respuesta de registro:', response);
+    
+    // ... resto del código de registro ...
+  } catch (error) {
+    console.error('Error detallado de registro:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Detalles de error Axios:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      });
+    }
+    throw error;
+  }
+};
+
+// ... resto del código ...
 
   // Modificar la función logout para asegurarnos de que se limpie correctamente
   const logout = () => {

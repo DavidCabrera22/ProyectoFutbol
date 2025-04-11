@@ -174,23 +174,24 @@ const StudentTable: FC = () => {
       console.log('Datos de alumnos recibidos:', respuesta.data);
       
       // Aseguramos que todos los campos numéricos sean realmente números
-      const estudiantesNormalizados = respuesta.data.map((est: EstudianteAPI) => ({
-        ...est,
-        idSede: Number(est.idSede),
-        idFormador: Number(est.idFormador),
-        idCategoria: Number(est.idCategoria),
-        activo: est.activo !== undefined ? est.activo : true, // Por defecto activo si no existe el campo
-        recomendadoPor: est.recomendadoPor || ''
-      }));
-      
-      setEstudiantes(estudiantesNormalizados);
-      setEstudiantesFiltrados(estudiantesNormalizados);
-      setTotalEstudiantes(estudiantesNormalizados.length);
-      
-      // Calculamos totales de activos e inactivos
-      const activos = estudiantesNormalizados.filter(e => e.activo).length;
-      setTotalActivos(activos);
-      setTotalInactivos(estudiantesNormalizados.length - activos);
+            // Aseguramos que todos los campos numéricos sean realmente números
+            const estudiantesNormalizados = respuesta.data.map((est: EstudianteAPI) => ({
+              ...est,
+              idSede: Number(est.idSede),
+              idFormador: Number(est.idFormador),
+              idCategoria: Number(est.idCategoria),
+              activo: est.activo !== undefined ? est.activo : true, // Por defecto activo si no existe el campo
+              recomendadoPor: est.recomendadoPor || ''
+            }));
+            
+            setEstudiantes(estudiantesNormalizados);
+            setEstudiantesFiltrados(estudiantesNormalizados);
+            setTotalEstudiantes(estudiantesNormalizados.length);
+            
+            // Calculamos totales de activos e inactivos
+            const activos = estudiantesNormalizados.filter((e: Estudiante) => e.activo).length;
+            setTotalActivos(activos);
+            setTotalInactivos(estudiantesNormalizados.length - activos);
     } catch (error) {
       console.error('Error al obtener estudiantes:', error);
       alert('Error al cargar los estudiantes. Por favor, intenta de nuevo.');
@@ -257,8 +258,10 @@ const cambiarEstadoAlumno = async () => {
 };
 
   // Función para obtener el historial de inactivaciones
- // Función para obtener el historial de inactivaciones
-const obtenerHistorialInactivaciones = async (estudiante) => {
+ // Función para obtener el historial de inactivacione
+
+// Función para obtener el historial de inactivaciones
+const obtenerHistorialInactivaciones = async (estudiante: Estudiante) => {
   try {
     setAlumnoSeleccionado(estudiante);
     
@@ -271,6 +274,8 @@ const obtenerHistorialInactivaciones = async (estudiante) => {
     alert('Error al obtener el historial de inactivaciones');
   }
 };
+
+// ... existing code ...
 
   // Función para formatear fechas
   const formatearFecha = (fecha: string | null) => {
